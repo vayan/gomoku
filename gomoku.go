@@ -10,13 +10,15 @@ import (
 	"strings"
 )
 
-var Board [][]int = initBoard(19)
+var Board [][]int = initBoard(GOBANSIZE)
 var Turn = BLACK
 
 const (
-	BLACK = 1
-	WHITE = 2
-	NONE  = 0
+	BLACK           = 1
+	WHITE           = 2
+	NONE            = 0
+	GOBANSIZE       = 20
+	NB_ALIGN_TO_WIN = 5
 )
 
 type Page struct {
@@ -55,9 +57,77 @@ func initBoard(size int) [][]int {
 	return (board)
 }
 
-func referee(coord []string) bool {
+func check_align(coord []int) bool {
+	hor := 0
+	vert := 0
+	tl := 1
+	tr := 1
+	x := coord[0]
+	y := coord[1]
+
+	//check hor
+	for i := y; (i >= 0) && Board[x][i] == Board[x][y]; i-- {
+		hor++
+	}
+	for i := y; (i <= 19) && Board[x][i] == Board[x][y]; i++ {
+		hor++
+	}
+	for i := x; (i <= 19) && Board[i][y] == Board[x][y]; i++ {
+		vert++
+	}
+	for i := x; (i >= 0) && Board[i][y] == Board[x][y]; i-- {
+		vert++
+	}
+	// check \
+	x = coord[0] - 1
+	y = coord[1] - 1
+	for x >= 0 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]] {
+		tl++
+		x--
+		y--
+	}
+	x = coord[0] + 1
+	y = coord[1] + 1
+	for x <= 19 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]] {
+		tl++
+		x++
+		y++
+	}
+
+	x = coord[0] - 1
+	y = coord[1] + 1
+	//check /
+	for x >= 0 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]] {
+		tl++
+		x--
+		y++
+	}
+	x = coord[0] + 1
+	y = coord[1] - 1
+	for x <= 19 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]] {
+		tl++
+		x++
+		y--
+	}
+
+	if hor > NB_ALIGN_TO_WIN || vert > NB_ALIGN_TO_WIN || tl >= NB_ALIGN_TO_WIN || tr >= NB_ALIGN_TO_WIN {
+		return true
+	}
+	return false
+}
+
+func check_win(coord []int) bool {
+	if check_align(coord) == true {
+		return true
+	}
+	return false
+}
+
+func referee(coord []string) (bool, bool) {
 	x, _ := strconv.Atoi(coord[0])
 	y, _ := strconv.Atoi(coord[1])
+
+	coordint := []int{x, y}
 
 	if Board[x][y] == NONE {
 		Board[x][y] = Turn
@@ -66,9 +136,9 @@ func referee(coord []string) bool {
 		} else {
 			Turn = BLACK
 		}
-		return (true)
+		return true, check_win(coordint)
 	}
-	return false
+	return false, false
 }
 
 func ws_send(buf string, ws *websocket.Conn) {
@@ -105,14 +175,18 @@ func sendRecvCoord(ws *websocket.Conn) {
 
 		//check avec le referee
 		if buf == "reset" {
-			Board = initBoard(19)
+			Board = initBoard(GOBANSIZE)
 		} else {
-			if referee(strings.Split(buf, ",")) == true {
+			mov, win := referee(strings.Split(buf, ","))
+			if win {
+				buf = "win"
+			} else if mov == true {
 				buf += "," + getStringTurn()
 			} else {
 				buf = "error"
 			}
 			ws_send(buf, ws)
+			affBoard(Board, GOBANSIZE)
 		}
 	}
 }
@@ -152,7 +226,7 @@ func HandleErrorFatal(er error) bool {
 func loadPage() *Page {
 	title := "test"
 	board := template.HTML(GenBoard(19, false))
-	boardClick := template.HTML(GenBoard(19, true))
+	boardClick := template.HTML(GenBoard(GOBANSIZE, true))
 	return &Page{Title: title, Board: board, BoardClick: boardClick}
 }
 
@@ -168,7 +242,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	fmt.Print("\n\n========GEN BOARD========\n")
-	affBoard(Board, 19)
+	affBoard(Board, GOBANSIZE)
 
 	fmt.Print("\n\n========Start gomoku web server========\n")
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))

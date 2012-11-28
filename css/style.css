@@ -41,6 +41,7 @@ table {
 }
 
 .boardclic td {
+	
 	width: 31px;
 	height: 31px;
 }
@@ -52,6 +53,8 @@ table {
 }
 
 .board {
+	margin-left: 35px;
+	margin-top: 35px;
 	background-color: #DC8F22;
 	position: absolute;
 }

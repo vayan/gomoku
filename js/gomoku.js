@@ -1,5 +1,5 @@
 var ws;
-var turn = "black";
+var turn = "unknow (surement black)";
 
 if (ws != null) {
      ws.close();
@@ -15,8 +15,10 @@ ws.onopen = function () {
 ws.onmessage = function (e) {
    console.log("receive :"+e.data);
 
-   if (e.data != "error") {
-
+   if (e.data == "win") {
+   		alert("win");
+   }
+   else if (e.data != "error") {
    	var data = e.data.split(',');
  	$('.pos'+data[0]+'y'+data[1]).addClass("bg"+data[2]);
  	if (data[2] == "black") {
