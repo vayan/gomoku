@@ -1,5 +1,6 @@
 var ws;
 var turn = "unknow (surement black)";
+var score = "Black : 0 | White : 0"
 
 if (ws != null) {
      ws.close();
@@ -20,7 +21,13 @@ ws.onmessage = function (e) {
    }
    else if (e.data != "error") {
    	var data = e.data.split(',');
- 	$('.pos'+data[0]+'y'+data[1]).addClass("bg"+data[2]);
+
+   	if (data[2] == "pow") {
+   		$('.pos'+data[0]+'y'+data[1]).removeClass("bgblack");
+   		$('.pos'+data[0]+'y'+data[1]).removeClass("bgwhite");
+   	} else {
+		$('.pos'+data[0]+'y'+data[1]).addClass("bg"+data[2]);
+ 	}
  	if (data[2] == "black") {
  		turn = "white";
  	} else {

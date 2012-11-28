@@ -12,6 +12,8 @@ import (
 
 var Board [][]int = initBoard(GOBANSIZE)
 var Turn = BLACK
+var BPOW = 0
+var WPOW = 0
 
 const (
 	BLACK           = 1
@@ -19,6 +21,7 @@ const (
 	NONE            = 0
 	GOBANSIZE       = 20
 	NB_ALIGN_TO_WIN = 5
+	STONE_TO_Win    = 10
 )
 
 type Page struct {
@@ -57,6 +60,94 @@ func initBoard(size int) [][]int {
 	return (board)
 }
 
+func capture_win() {
+
+}
+
+func send_capture(pow [][]int, ws *websocket.Conn) {
+	var buff string
+
+	if pow != nil {
+		for key := range pow {
+			if pow[key] != nil {
+				buff = strconv.Itoa(pow[key][0]) + "," + strconv.Itoa(pow[key][1]) + ",pow"
+				ws_send(buff, ws)
+				if Board[pow[key][0]][pow[key][1]] == BLACK {
+					WPOW += 1
+				} else {
+					BPOW += 1
+				}
+				Board[pow[key][0]][pow[key][1]] = NONE
+			}
+
+		}
+	}
+}
+
+func capture(coord []int) [][]int {
+	x := coord[0]
+	y := coord[1]
+	i := 0
+
+	var capt = make([][]int, 19)
+	to_capt := BLACK
+	if Board[x][y] == BLACK {
+		to_capt = WHITE
+	}
+
+	// hori
+	if x-3 >= 0 && Board[x-1][y] == to_capt && Board[x-2][y] == to_capt && Board[x-3][y] == Board[x][y] {
+		capt[i] = []int{x - 1, y}
+		capt[i+1] = []int{x - 2, y}
+		i += 2
+	}
+	if x+3 <= 19 && Board[x+1][y] == to_capt && Board[x+2][y] == to_capt && Board[x+3][y] == Board[x][y] {
+		capt[i] = []int{x + 1, y}
+		capt[i+1] = []int{x + 2, y}
+		i += 2
+	}
+
+	//verti
+	if y+3 <= 19 && Board[x][y+1] == to_capt && Board[x][y+2] == to_capt && Board[x][y+3] == Board[x][y] {
+		capt[i] = []int{x, y + 1}
+		capt[i+1] = []int{x, y + 2}
+		i += 2
+	}
+	if y-3 >= 0 && Board[x][y-1] == to_capt && Board[x][y-2] == to_capt && Board[x][y-3] == Board[x][y] {
+		capt[i] = []int{x, y - 1}
+		capt[i+1] = []int{x, y - 2}
+		i += 2
+	}
+
+	// /
+	if x-3 >= 0 && y+3 <= 19 && Board[x-1][y+1] == to_capt && Board[x-2][y+2] == to_capt && Board[x-3][y+3] == Board[x][y] {
+		capt[i] = []int{x - 1, y + 1}
+		capt[i+1] = []int{x - 2, y + 2}
+		i += 2
+	}
+	if x+3 <= 19 && y-3 >= 0 && Board[x+1][y-1] == to_capt && Board[x+2][y-2] == to_capt && Board[x+3][y-3] == Board[x][y] {
+		capt[i] = []int{x + 1, y - 1}
+		capt[i+1] = []int{x + 2, y - 2}
+		i += 2
+	}
+
+	// \
+	if x-3 >= 0 && y-3 >= 0 && Board[x-1][y-1] == to_capt && Board[x-2][y-2] == to_capt && Board[x-3][y-3] == Board[x][y] {
+		capt[i] = []int{x - 1, y - 1}
+		capt[i+1] = []int{x - 2, y - 2}
+		i += 2
+	}
+	if x+3 <= 19 && y+3 <= 19 && Board[x+1][y+1] == to_capt && Board[x+2][y+2] == to_capt && Board[x+3][y+3] == Board[x][y] {
+		capt[i] = []int{x - 1, y - 1}
+		capt[i+1] = []int{x - 2, y - 2}
+		i += 2
+	}
+	if i != 0 {
+		return capt
+	}
+	return nil
+}
+
 func check_align(coord []int) bool {
 	hor := 0
 	vert := 0
@@ -79,32 +170,24 @@ func check_align(coord []int) bool {
 		vert++
 	}
 	// check \
-	x = coord[0] - 1
-	y = coord[1] - 1
-	for x >= 0 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]] {
+	for x, y = coord[0]-1, coord[1]-1; x >= 0 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
 		tl++
 		x--
 		y--
 	}
-	x = coord[0] + 1
-	y = coord[1] + 1
-	for x <= 19 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]] {
+	for x, y = coord[0]+1, coord[1]+1; x <= 19 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
 		tl++
 		x++
 		y++
 	}
 
-	x = coord[0] - 1
-	y = coord[1] + 1
 	//check /
-	for x >= 0 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]] {
+	for x, y = coord[0]-1, coord[1]+1; x >= 0 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
 		tl++
 		x--
 		y++
 	}
-	x = coord[0] + 1
-	y = coord[1] - 1
-	for x <= 19 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]] {
+	for x, y = coord[0]+1, coord[1]-1; x <= 19 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
 		tl++
 		x++
 		y--
@@ -123,7 +206,8 @@ func check_win(coord []int) bool {
 	return false
 }
 
-func referee(coord []string) (bool, bool) {
+func referee(coord []string, ws *websocket.Conn) (bool, bool) {
+
 	x, _ := strconv.Atoi(coord[0])
 	y, _ := strconv.Atoi(coord[1])
 
@@ -136,6 +220,7 @@ func referee(coord []string) (bool, bool) {
 		} else {
 			Turn = BLACK
 		}
+		send_capture(capture(coordint), ws)
 		return true, check_win(coordint)
 	}
 	return false, false
@@ -177,7 +262,7 @@ func sendRecvCoord(ws *websocket.Conn) {
 		if buf == "reset" {
 			Board = initBoard(GOBANSIZE)
 		} else {
-			mov, win := referee(strings.Split(buf, ","))
+			mov, win := referee(strings.Split(buf, ","), ws)
 			if win {
 				buf = "win"
 			} else if mov == true {
