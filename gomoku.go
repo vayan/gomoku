@@ -84,6 +84,110 @@ func send_capture(pow [][]int, ws *websocket.Conn) {
 	}
 }
 
+func breakable_opos(coord []int) bool {
+	x := coord[0]
+	y := coord[1]
+	i := 0
+
+	to_capt := BLACK
+	if Board[x][y] == BLACK {
+		to_capt = WHITE
+	}
+
+	// hori
+
+	if x-1 >= 0 && x+1 <= 19 && Board[x-1][y] == to_capt && Board[x+1][y] == Board[x][y] {
+		i += 2
+	}
+	if x-1 >= 0 && x+1 <= 19 && Board[x-1][y] == Board[x][y] && Board[x+1][y] == to_capt {
+		i += 2
+	}
+
+	//verti
+	if y+1 <= 19 && y-1 >= 0 && Board[x][y+1] == to_capt && Board[x][y-1] == Board[x][y] {
+		i += 2
+	}
+	if y+1 <= 19 && y-1 >= 0 && Board[x][y+1] == Board[x][y] && Board[x][y-1] == to_capt {
+		i += 2
+	}
+
+	// /
+	if x-1 >= 0 && y+1 <= 19 && x+1 <= 19 && y-1 >= 0 && Board[x-1][y+1] == Board[x][y] && Board[x+1][y-1] == to_capt {
+		i += 2
+	}
+	if x-1 >= 0 && y+1 <= 19 && x+1 <= 19 && y-1 >= 0 && Board[x-1][y+1] == to_capt && Board[x+1][y-1] == Board[x][y] {
+		i += 2
+	}
+
+	// \
+	if x-1 >= 0 && y-1 >= 0 && x+1 >= 19 && y+1 >= 19 && Board[x-1][y-1] == Board[x][y] && Board[x+1][y+1] == to_capt {
+		i += 2
+	}
+	if x-1 >= 0 && y-1 >= 0 && x+1 >= 19 && y+1 >= 19 && Board[x-1][y-1] == to_capt && Board[x+1][y+1] == Board[x][y] {
+		i += 2
+	}
+	if i != 0 {
+		return true
+	}
+	return false
+}
+
+func breakable_same(coord []int) bool {
+	x := coord[0]
+	y := coord[1]
+	i := 0
+
+	to_capt := BLACK
+	if Board[x][y] == BLACK {
+		to_capt = WHITE
+	}
+
+	// hori
+	if x-2 >= 0 && Board[x-1][y] == Board[x][y] && Board[x-2][y] == to_capt {
+		i += 2
+	}
+	if x+2 <= 19 && Board[x+1][y] == Board[x][y] && Board[x+2][y] == to_capt {
+		i += 2
+	}
+
+	//verti
+	if y+2 <= 19 && Board[x][y+1] == Board[x][y] && Board[x][y+2] == to_capt {
+		i += 2
+	}
+	if y-2 >= 0 && Board[x][y-1] == Board[x][y] && Board[x][y-2] == to_capt {
+		i += 2
+	}
+
+	// /
+	if x-2 >= 0 && y+2 <= 19 && Board[x-1][y+1] == Board[x][y] && Board[x-2][y+2] == to_capt {
+		i += 2
+	}
+	if x+2 <= 19 && y-2 >= 0 && Board[x+1][y-1] == Board[x][y] && Board[x+2][y-2] == to_capt {
+		i += 2
+	}
+
+	// \
+	if x-2 >= 0 && y-2 >= 0 && Board[x-1][y-1] == Board[x][y] && Board[x-2][y-2] == to_capt {
+		i += 2
+	}
+	if x+2 <= 19 && y+2 <= 19 && Board[x+1][y+1] == Board[x][y] && Board[x+2][y+2] == to_capt {
+		i += 2
+	}
+	if i != 0 {
+		return true
+	}
+	return false
+}
+
+func breakable(coord []int) bool {
+	if breakable_same(coord) {
+		return true
+	} else if breakable_opos(coord) {
+		return true
+	}
+	return false
+}
+
 func capture(coord []int) [][]int {
 	x := coord[0]
 	y := coord[1]
@@ -96,6 +200,7 @@ func capture(coord []int) [][]int {
 	}
 
 	// hori
+
 	if x-3 >= 0 && Board[x-1][y] == to_capt && Board[x-2][y] == to_capt && Board[x-3][y] == Board[x][y] {
 		capt[i] = []int{x - 1, y}
 		capt[i+1] = []int{x - 2, y}
@@ -138,8 +243,8 @@ func capture(coord []int) [][]int {
 		i += 2
 	}
 	if x+3 <= 19 && y+3 <= 19 && Board[x+1][y+1] == to_capt && Board[x+2][y+2] == to_capt && Board[x+3][y+3] == Board[x][y] {
-		capt[i] = []int{x - 1, y - 1}
-		capt[i+1] = []int{x - 2, y - 2}
+		capt[i] = []int{x + 1, y + 1}
+		capt[i+1] = []int{x + 2, y + 2}
 		i += 2
 	}
 	if i != 0 {
@@ -158,37 +263,69 @@ func check_align(coord []int) bool {
 
 	//check hor
 	for i := y; (i >= 0) && Board[x][i] == Board[x][y]; i-- {
-		hor++
+		if breakable([]int{x, i}) == false {
+			hor++
+		} else {
+			break
+		}
 	}
 	for i := y; (i <= 19) && Board[x][i] == Board[x][y]; i++ {
-		hor++
+		if breakable([]int{x, i}) == false {
+			hor++
+		} else {
+			break
+		}
 	}
 	for i := x; (i <= 19) && Board[i][y] == Board[x][y]; i++ {
-		vert++
+		if breakable([]int{i, y}) == false {
+			vert++
+		} else {
+			break
+		}
 	}
 	for i := x; (i >= 0) && Board[i][y] == Board[x][y]; i-- {
-		vert++
+		if breakable([]int{i, y}) == false {
+			vert++
+		} else {
+			break
+		}
 	}
 	// check \
 	for x, y = coord[0]-1, coord[1]-1; x >= 0 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
-		tl++
+		if breakable([]int{x, y}) == false {
+			tl++
+		} else {
+			break
+		}
 		x--
 		y--
 	}
 	for x, y = coord[0]+1, coord[1]+1; x <= 19 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
-		tl++
+		if breakable([]int{x, y}) == false {
+			tl++
+		} else {
+			break
+		}
 		x++
 		y++
 	}
 
 	//check /
 	for x, y = coord[0]-1, coord[1]+1; x >= 0 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
-		tl++
+		if breakable([]int{x, y}) == false {
+			tr++
+		} else {
+			break
+		}
 		x--
 		y++
 	}
 	for x, y = coord[0]+1, coord[1]-1; x <= 19 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
-		tl++
+		if breakable([]int{x, y}) == false {
+			tr++
+		} else {
+			break
+		}
 		x++
 		y--
 	}
