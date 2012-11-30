@@ -25,18 +25,18 @@ func ws_send(buf string, ws *websocket.Conn) {
 
 func ws_recv(ws *websocket.Conn) string {
 	var buf string
-	//var connect Connection
+	var connect Connection
 
 	err := websocket.Message.Receive(ws, &buf)
 	if err != nil {
-		// for pl, _ := range players {
-		// 	if pl.ws == ws {
-		// 		connect = pl
-		// 		break
-		// 	}
-		// }
+		for pl, _ := range players {
+			if pl.ws == ws {
+				connect = pl
+				break
+			}
+		}
 		fmt.Println(err)
-		//delete(players, connect)
+		delete(players, connect)
 	}
 	fmt.Printf("recv coord:%s\n", buf)
 	return buf
