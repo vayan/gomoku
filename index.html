@@ -3,19 +3,29 @@
 <head>
   <title>GOMOKU</title>
   <link href="css/style.css" rel="stylesheet" media="screen">
+  <link href='http://fonts.googleapis.com/css?family=Mako' rel='stylesheet' type='text/css'>
 </head>
 <body>
-  <div id="head">
-  <input type="button" id="reset" value="reset" /> <div id="turn"></div><div id="score"></div>
-</div>
-  <table class="boardclic">
-    {{.BoardClick}}
-  </table> 
-  
-  <table class="board">
-    {{.Board}}
-  </table>    
+<div id="wrap">
+  <div id="title">GOmoku</div>
+  <div id="menu">
+    <input type="button" class="selectpvp" value="Player vs. Player" />
+    <input type="button" class="selectpvp" value="Player vs.  IA" />
+    <div id="victory"></div>
+  </div>
 
+  <div id="game">
+    <div id="head">
+      <input type="button" id="reset" value="Restart" /> <div id="turn"></div><div id="score"></div>
+    </div>
+      <table class="boardclic">
+        {{.BoardClick}}
+      </table> 
+      <table class="board">
+        {{.Board}}
+      </table>    
+  </div>
+</div>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> 
   <script src="js/gomoku.js"></script> 
 </body>

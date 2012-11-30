@@ -48,7 +48,8 @@ func affBoard(board [][]int, size int) {
 func initBoard(size int) [][]int {
 
 	var board = make([][]int, size)
-
+	BPOW = 0
+	WPOW = 0
 	Turn = BLACK
 
 	for x := 0; x < size; x++ {
@@ -87,46 +88,20 @@ func send_capture(pow [][]int, ws *websocket.Conn) {
 func breakable_opos(coord []int) bool {
 	x := coord[0]
 	y := coord[1]
-	i := 0
-
 	to_capt := BLACK
+
 	if Board[x][y] == BLACK {
 		to_capt = WHITE
 	}
 
-	// hori
-
-	if x-1 >= 0 && x+1 <= 19 && Board[x-1][y] == to_capt && Board[x+1][y] == Board[x][y] {
-		i += 2
-	}
-	if x-1 >= 0 && x+1 <= 19 && Board[x-1][y] == Board[x][y] && Board[x+1][y] == to_capt {
-		i += 2
-	}
-
-	//verti
-	if y+1 <= 19 && y-1 >= 0 && Board[x][y+1] == to_capt && Board[x][y-1] == Board[x][y] {
-		i += 2
-	}
-	if y+1 <= 19 && y-1 >= 0 && Board[x][y+1] == Board[x][y] && Board[x][y-1] == to_capt {
-		i += 2
-	}
-
-	// /
-	if x-1 >= 0 && y+1 <= 19 && x+1 <= 19 && y-1 >= 0 && Board[x-1][y+1] == Board[x][y] && Board[x+1][y-1] == to_capt {
-		i += 2
-	}
-	if x-1 >= 0 && y+1 <= 19 && x+1 <= 19 && y-1 >= 0 && Board[x-1][y+1] == to_capt && Board[x+1][y-1] == Board[x][y] {
-		i += 2
-	}
-
-	// \
-	if x-1 >= 0 && y-1 >= 0 && x+1 >= 19 && y+1 >= 19 && Board[x-1][y-1] == Board[x][y] && Board[x+1][y+1] == to_capt {
-		i += 2
-	}
-	if x-1 >= 0 && y-1 >= 0 && x+1 >= 19 && y+1 >= 19 && Board[x-1][y-1] == to_capt && Board[x+1][y+1] == Board[x][y] {
-		i += 2
-	}
-	if i != 0 {
+	if (x-1 >= 0 && x+1 <= 19 && Board[x-1][y] == to_capt && Board[x+1][y] == Board[x][y]) ||
+		(x-1 >= 0 && x+1 <= 19 && Board[x-1][y] == Board[x][y] && Board[x+1][y] == to_capt) ||
+		(y+1 <= 19 && y-1 >= 0 && Board[x][y+1] == to_capt && Board[x][y-1] == Board[x][y]) ||
+		(y+1 <= 19 && y-1 >= 0 && Board[x][y+1] == Board[x][y] && Board[x][y-1] == to_capt) ||
+		(x-1 >= 0 && y+1 <= 19 && x+1 <= 19 && y-1 >= 0 && Board[x-1][y+1] == Board[x][y] && Board[x+1][y-1] == to_capt) ||
+		(x-1 >= 0 && y+1 <= 19 && x+1 <= 19 && y-1 >= 0 && Board[x-1][y+1] == to_capt && Board[x+1][y-1] == Board[x][y]) ||
+		(x-1 >= 0 && y-1 >= 0 && x+1 <= 19 && y+1 <= 19 && Board[x-1][y-1] == Board[x][y] && Board[x+1][y+1] == to_capt) ||
+		(x-1 >= 0 && y-1 >= 0 && x+1 <= 19 && y+1 <= 19 && Board[x-1][y-1] == to_capt && Board[x+1][y+1] == Board[x][y]) {
 		return true
 	}
 	return false
@@ -135,45 +110,20 @@ func breakable_opos(coord []int) bool {
 func breakable_same(coord []int) bool {
 	x := coord[0]
 	y := coord[1]
-	i := 0
-
 	to_capt := BLACK
+
 	if Board[x][y] == BLACK {
 		to_capt = WHITE
 	}
 
-	// hori
-	if x-2 >= 0 && Board[x-1][y] == Board[x][y] && Board[x-2][y] == to_capt {
-		i += 2
-	}
-	if x+2 <= 19 && Board[x+1][y] == Board[x][y] && Board[x+2][y] == to_capt {
-		i += 2
-	}
-
-	//verti
-	if y+2 <= 19 && Board[x][y+1] == Board[x][y] && Board[x][y+2] == to_capt {
-		i += 2
-	}
-	if y-2 >= 0 && Board[x][y-1] == Board[x][y] && Board[x][y-2] == to_capt {
-		i += 2
-	}
-
-	// /
-	if x-2 >= 0 && y+2 <= 19 && Board[x-1][y+1] == Board[x][y] && Board[x-2][y+2] == to_capt {
-		i += 2
-	}
-	if x+2 <= 19 && y-2 >= 0 && Board[x+1][y-1] == Board[x][y] && Board[x+2][y-2] == to_capt {
-		i += 2
-	}
-
-	// \
-	if x-2 >= 0 && y-2 >= 0 && Board[x-1][y-1] == Board[x][y] && Board[x-2][y-2] == to_capt {
-		i += 2
-	}
-	if x+2 <= 19 && y+2 <= 19 && Board[x+1][y+1] == Board[x][y] && Board[x+2][y+2] == to_capt {
-		i += 2
-	}
-	if i != 0 {
+	if (x-2 >= 0 && Board[x-1][y] == Board[x][y] && Board[x-2][y] == to_capt) ||
+		(x+2 <= 19 && Board[x+1][y] == Board[x][y] && Board[x+2][y] == to_capt) ||
+		(y+2 <= 19 && Board[x][y+1] == Board[x][y] && Board[x][y+2] == to_capt) ||
+		(y-2 >= 0 && Board[x][y-1] == Board[x][y] && Board[x][y-2] == to_capt) ||
+		(x-2 >= 0 && y+2 <= 19 && Board[x-1][y+1] == Board[x][y] && Board[x-2][y+2] == to_capt) ||
+		(x+2 <= 19 && y-2 >= 0 && Board[x+1][y-1] == Board[x][y] && Board[x+2][y-2] == to_capt) ||
+		(x-2 >= 0 && y-2 >= 0 && Board[x-1][y-1] == Board[x][y] && Board[x-2][y-2] == to_capt) ||
+		(x+2 <= 19 && y+2 <= 19 && Board[x+1][y+1] == Board[x][y] && Board[x+2][y+2] == to_capt) {
 		return true
 	}
 	return false
@@ -184,6 +134,238 @@ func breakable(coord []int) bool {
 		return true
 	} else if breakable_opos(coord) {
 		return true
+	}
+	return false
+}
+
+func check_all_three_free(coord []int, player int) int {
+	x := coord[0]
+	y := coord[1]
+
+	nb_free := 0
+
+	for i := y; (i >= 0) && Board[x][i] == Board[x][y]; i-- {
+		if create_three_free([]int{x, i}, player) >= 1 {
+			nb_free++
+			break
+		}
+	}
+	for i := y; (i <= 19) && Board[x][i] == Board[x][y]; i++ {
+		if create_three_free([]int{x, i}, player) >= 1 {
+			nb_free++
+			break
+		}
+
+	}
+	for i := x; (i <= 19) && Board[i][y] == Board[x][y]; i++ {
+		if create_three_free([]int{i, y}, player) >= 1 {
+			nb_free++
+			break
+		}
+
+	}
+	for i := x; (i >= 0) && Board[i][y] == Board[x][y]; i-- {
+		if create_three_free([]int{i, y}, player) >= 1 {
+			nb_free++
+			break
+		}
+
+	}
+
+	for x, y = coord[0]-1, coord[1]-1; x >= 0 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if create_three_free([]int{x, y}, player) >= 1 {
+			nb_free++
+			break
+		}
+
+		x--
+		y--
+	}
+	for x, y = coord[0]+1, coord[1]+1; x <= 19 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if create_three_free([]int{x, y}, player) >= 1 {
+			nb_free++
+			break
+		}
+
+		x++
+		y++
+	}
+
+	for x, y = coord[0]-1, coord[1]+1; x >= 0 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if create_three_free([]int{x, y}, player) >= 1 {
+			nb_free++
+			break
+		}
+		x--
+		y++
+	}
+	for x, y = coord[0]+1, coord[1]-1; x <= 19 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if create_three_free([]int{x, y}, player) >= 1 {
+			nb_free++
+			break
+		}
+		x++
+		y--
+	}
+	return nb_free
+}
+
+func create_three_free(coord []int, player int) int {
+	x := coord[0]
+	y := coord[1]
+
+	nb_free := 0
+	nb_free_hori := 0
+	nb_free_verti := 0
+	nb_free_slash := 0
+	nb_free_anti := 0
+
+	tmp := nb_free
+	for i, v, stone := y, 0, 1; (i >= 0) && (Board[x][i] == player || Board[x][i] == NONE) && v <= 3; i-- {
+		if Board[x][i] == player && stone < 3 {
+			stone++
+			nb_free_hori++
+		}
+		if stone == 3 {
+			if i-1 >= 0 && Board[x][i-1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+	}
+	for i, v, stone := y, 0, 1; (i <= 19) && (Board[x][i] == player || Board[x][i] == NONE) && v <= 3; i++ {
+		if Board[x][i] == player && stone < 3 {
+			stone++
+			nb_free_hori++
+		}
+		if stone == 3 {
+			if i+1 <= 19 && Board[x][i+1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+	}
+	if nb_free_hori == 2 && tmp == nb_free {
+		nb_free++
+	}
+	tmp = nb_free
+	for i, v, stone := x, 0, 1; (i <= 19) && (Board[i][y] == player || Board[i][y] == NONE) && v <= 3; i++ {
+		if Board[i][y] == player && stone < 3 {
+			stone++
+			nb_free_verti++
+		}
+		if stone == 3 {
+			if i+1 <= 19 && Board[i+1][y] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+
+	}
+	for i, v, stone := x, 0, 1; (i >= 0) && (Board[i][y] == player || Board[i][y] == NONE) && v <= 3; i-- {
+		if Board[i][y] == player && stone < 3 {
+			stone++
+			nb_free_verti++
+		}
+		if stone == 3 {
+			if i-1 >= 0 && Board[i-1][y] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+	}
+	if nb_free_verti == 2 && tmp == nb_free {
+		nb_free++
+	}
+	tmp = nb_free
+	for x, y, v, stone := coord[0]-1, coord[1]-1, 0, 1; x >= 0 && y >= 0 && (Board[x][y] == player || Board[x][y] == NONE) && v <= 3; {
+		if Board[x][y] == player && stone < 3 {
+			stone++
+			nb_free_slash++
+		}
+		if stone == 3 {
+			if x-1 >= 0 && y-1 >= 0 && Board[x-1][y-1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+		x--
+		y--
+	}
+	for x, y, v, stone := coord[0]+1, coord[1]+1, 0, 1; x <= 19 && y <= 19 && (Board[x][y] == player || Board[x][y] == NONE) && v <= 3; {
+		if Board[x][y] == player && stone < 3 {
+			stone++
+			nb_free_slash++
+		}
+		if stone == 3 {
+			if x+1 <= 19 && y+1 <= 19 && Board[x+1][y+1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+		x++
+		y++
+	}
+	if nb_free_slash == 2 && tmp == nb_free {
+		nb_free++
+	}
+	tmp = nb_free
+	for x, y, v, stone := coord[0]-1, coord[1]+1, 0, 1; x >= 0 && y <= 19 && (Board[x][y] == player || Board[x][y] == NONE) && v <= 3; {
+		if Board[x][y] == player && stone < 3 {
+			stone++
+			nb_free_anti++
+		}
+		if stone == 3 {
+			if x-1 >= 0 && y+1 <= 19 && Board[x-1][y+1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+		x--
+		y++
+	}
+	for x, y, v, stone := coord[0]+1, coord[1]-1, 0, 1; x <= 19 && y >= 0 && (Board[x][y] == player || Board[x][y] == NONE) && v <= 3; {
+		if Board[x][y] == player && stone < 3 {
+			stone++
+			nb_free_anti++
+		}
+		if stone == 3 {
+			if x+1 <= 19 && y-1 >= 0 && Board[x+1][y-1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+		x++
+		y--
+	}
+	if nb_free_anti == 2 && tmp == nb_free {
+		nb_free++
+	}
+	return nb_free
+}
+
+func dual_three(coord []int, player int) bool {
+
+	res := create_three_free(coord, player)
+	if res > 1 {
+		fmt.Print("\nDUAL THREE\n")
+		return true
+	}
+	if res == 1 {
+		fmt.Print("\nUN THREE\n")
+		ff := check_all_three_free(coord, player)
+		if ff >= 6 {
+			fmt.Printf("\nencore '%d' THREE\n", ff)
+			return true
+		}
 	}
 	return false
 }
@@ -336,14 +518,20 @@ func check_align(coord []int) bool {
 	return false
 }
 
-func check_win(coord []int) bool {
+func check_win(coord []int) (bool, int) {
 	if check_align(coord) == true {
-		return true
+		return true, getinvturn()
 	}
-	return false
+	if BPOW == 10 {
+		return true, BLACK
+	}
+	if WPOW == 10 {
+		return true, WHITE
+	}
+	return false, -1
 }
 
-func referee(coord []string, ws *websocket.Conn) (bool, bool) {
+func referee(coord []string, ws *websocket.Conn) (bool, bool, int) {
 
 	x, _ := strconv.Atoi(coord[0])
 	y, _ := strconv.Atoi(coord[1])
@@ -351,16 +539,19 @@ func referee(coord []string, ws *websocket.Conn) (bool, bool) {
 	coordint := []int{x, y}
 
 	if Board[x][y] == NONE {
-		Board[x][y] = Turn
-		if Turn == BLACK {
-			Turn = WHITE
-		} else {
-			Turn = BLACK
+		if dual_three(coordint, Turn) == false {
+			Board[x][y] = Turn
+			if Turn == BLACK {
+				Turn = WHITE
+			} else {
+				Turn = BLACK
+			}
+			send_capture(capture(coordint), ws)
+			win, who := check_win(coordint)
+			return true, win, who
 		}
-		send_capture(capture(coordint), ws)
-		return true, check_win(coordint)
 	}
-	return false, false
+	return false, false, -1
 }
 
 func ws_send(buf string, ws *websocket.Conn) {
@@ -382,11 +573,32 @@ func ws_recv(ws *websocket.Conn) string {
 	return buf
 }
 
+func getinvturn() int {
+	if Turn == BLACK {
+		return WHITE
+	}
+	return BLACK
+}
+
 func getStringTurn() string {
+	if Turn == BLACK {
+		return "black"
+	}
+	return "white"
+}
+
+func getStringTurnInv() string {
 	if Turn == BLACK {
 		return "white"
 	}
 	return "black"
+}
+
+func getStringPl(pl int) string {
+	if pl == BLACK {
+		return "black"
+	}
+	return "white"
 }
 
 func sendRecvCoord(ws *websocket.Conn) {
@@ -398,12 +610,17 @@ func sendRecvCoord(ws *websocket.Conn) {
 		//check avec le referee
 		if buf == "reset" {
 			Board = initBoard(GOBANSIZE)
+
+		} else if buf == "getturn" {
+			ws_send("turn,"+getStringTurn(), ws)
+		} else if buf == "getscore" {
+			ws_send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
 		} else {
-			mov, win := referee(strings.Split(buf, ","), ws)
+			mov, win, who := referee(strings.Split(buf, ","), ws)
 			if win {
-				buf = "win"
+				buf = "win," + getStringPl(who)
 			} else if mov == true {
-				buf += "," + getStringTurn()
+				buf += "," + getStringTurnInv()
 			} else {
 				buf = "error"
 			}

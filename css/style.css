@@ -1,6 +1,6 @@
 body {
- margin: 30px 10px 10px 10px;
- font-family: 'arial';
+ /**/
+ font-family: 'Mako', sans-serif;
 }
 
 table {
@@ -8,15 +8,62 @@ table {
 	border-collapse: collapse;
 }
 
+#wrap {
+	top: 0;
+	bottom: 0;
+	width: 700px;
+	margin: 0 auto 0 auto;
+	border: 1px dotted grey;
+	padding: 5px;
+}
+
+#title {
+
+	text-align: center;
+	font-size: 2em;
+	margin-bottom: 15px;
+}
+
+#menu {
+	margin: 0 auto 0 auto;
+	width: 410px;
+}
+
+#menu input {
+	width: 200px;
+	height: 200px;
+}
+
+#game { 
+	margin: 30px 10px 10px 10px;
+	display: none;
+}
+
+#victory {
+	display: none;
+	margin: 10px;
+	padding: 10px;
+	font-size: 3em;
+	width: 400px;
+	border: 1px dotted green;
+}
+
 #head {
-	width: 500px;
+	width: 600px;
 	height: 50px;
 }
 
+#score {
+	float: right;
+	color: black;
+	font-size: 1.5em;
+}
+
 #turn {
+	float: left;
 	margin-left: 50px;
 	color: black;
-	font-size: 2.1em;
+	font-size: 1.5em;
 }
 
 #reset {
