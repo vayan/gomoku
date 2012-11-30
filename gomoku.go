@@ -22,6 +22,7 @@ const (
 	GOBANSIZE       = 20
 	NB_ALIGN_TO_WIN = 5
 	STONE_TO_Win    = 10
+	COMMit          = 0
 )
 
 type Page struct {
