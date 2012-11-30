@@ -1,6 +1,7 @@
 var ws;
 var turn = "Turn : unknown";
 var score = "Black : 0 | White : 0"
+var me = "You are : unknown"
 
 if(ws != null) {
   ws.close();
@@ -12,6 +13,7 @@ ws = new WebSocket("ws://localhost:1112/ws");
 ws.onopen = function() {
   console.log("open");
   ws.send("getturn");
+  ws.send("getme");
 };
 
 ws.onmessage = function(e) {
@@ -26,15 +28,27 @@ ws.onmessage = function(e) {
       $("#game").slideUp(300);
       $("#menu").show(300);
       $("#victory").text(data[1] + " is the winner !!!").show(300);
-    } else if(data[2] == "pow") {
+    } 
+
+    else if(data[2] == "pow") {
       $('.pos' + data[0] + 'y' + data[1]).removeClass("bgblack");
       $('.pos' + data[0] + 'y' + data[1]).removeClass("bgwhite");
-    } else if(data[0] == "turn") {
+    } 
+
+    else if(data[0] == "turn") {
       turn = data[1]
       $("#turn").text("Turn : " + turn);
-    } else if(data[0] == "score") {
+    } 
+
+    else if(data[0] == "score") {
       $("#score").text(data[1]);
-    } else {
+    } 
+
+    else if(data[0] == "me") {
+      $("#me").text(data[1]);
+    } 
+
+    else {
       $('.pos' + data[0] + 'y' + data[1]).addClass("bg" + data[2]);
       if(data[2] == "black") {
         turn = "white";
@@ -53,6 +67,7 @@ ws.onclose = function(e) {
 
 $("#turn").text(turn);
 $("#score").text(score);
+$("#me").text(me);
 
 
 $(".selectpvp").click(function() {

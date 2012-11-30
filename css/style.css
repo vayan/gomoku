@@ -49,27 +49,36 @@ table {
 }
 
 #head {
+	margin: 0 auto 0 auto;
 	width: 600px;
 	height: 50px;
 }
 
+#head span {
+	padding: 10px;
+	border: 1px dotted grey;
+	margin: 10px;
+}
+
 #score {
-	float: right;
 	color: black;
-	font-size: 1.5em;
+	font-size: 1em;
+}
+
+#me {
+	color: black;
+	font-size: 1em;
 }
 
 #turn {
-	float: left;
 	margin-left: 50px;
 	color: black;
-	font-size: 1.5em;
+	font-size: 1em;
 }
 
 #reset {
-	float: left;
 	width: 100px;
-	height: 25px;
+	height: 45px;
 }
 
 .bgblack {
