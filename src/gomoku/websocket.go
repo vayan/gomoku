@@ -42,6 +42,22 @@ func ws_recv(ws *websocket.Conn) string {
 	return buf
 }
 
+func sendboard(ws *websocket.Conn) {
+	for x := 0; x < 20; x++ {
+		for y := 0; y < 20; y++ {
+			buf := strconv.Itoa(x) + "," + strconv.Itoa(y)
+			if Board[x][y] == BLACK {
+				buf += ",black"
+				ws_send(buf, ws)
+			} else if Board[x][y] == WHITE {
+				buf += ",white"
+				ws_send(buf, ws)
+			}
+		}
+		fmt.Print("\n")
+	}
+}
+
 func SendRecvCoord(ws *websocket.Conn) {
 	slotleft := BLACK
 	for pl, _ := range players {
@@ -53,6 +69,7 @@ func SendRecvCoord(ws *websocket.Conn) {
 	}
 	sock_cli := Connection{ws, slotleft, false}
 	fmt.Printf("\nNouveau joueurs de type %d\n", slotleft)
+	sendboard(ws)
 	players[sock_cli] = 0
 
 	for {
@@ -74,6 +91,9 @@ func SendRecvCoord(ws *websocket.Conn) {
 			mov, win, who := referee(strings.Split(buf, ","), ws)
 			if win {
 				buf = "win," + getStringPl(who)
+				for pl, _ := range players {
+					ws_send(buf, pl.ws)
+				}
 			} else if mov == true {
 				buf += "," + getStringTurnInv()
 				for pl, _ := range players {

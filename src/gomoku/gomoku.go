@@ -39,7 +39,9 @@ func send_capture(pow [][]int, ws *websocket.Conn) {
 		for key := range pow {
 			if pow[key] != nil {
 				buff = strconv.Itoa(pow[key][0]) + "," + strconv.Itoa(pow[key][1]) + ",pow"
-				ws_send(buff, ws)
+				for pl, _ := range players {
+					ws_send(buff, pl.ws)
+				}
 				if Board[pow[key][0]][pow[key][1]] == BLACK {
 					WPOW += 1
 				} else {

@@ -27,6 +27,7 @@ ws.onmessage = function(e) {
       ws.send("reset");
       $("#game").slideUp(300);
       $("#menu").show(300);
+
       $("#victory").text(data[1] + " is the winner !!!").show(300);
     } 
 
@@ -71,7 +72,6 @@ $("#me").text(me);
 
 
 $(".selectpvp").click(function() {
-  ws.send("reset");
   $("#victory").hide();
   $("#menu").slideUp(300);
   $("#game").show(300);
