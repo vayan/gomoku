@@ -39,6 +39,7 @@ func initBoard(size int) [][]int {
 	BPOW = 0
 	WPOW = 0
 	Turn = BLACK
+	players = make(map[Connection]int)
 
 	for x := 0; x < size; x++ {
 		board[x] = make([]int, size)

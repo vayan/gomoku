@@ -1,0 +1,494 @@
+package gomoku
+
+import (
+	"code.google.com/p/go.net/websocket"
+	"fmt"
+	"strconv"
+)
+
+func breakable_opos(coord []int) bool {
+	x := coord[0]
+	y := coord[1]
+	to_capt := BLACK
+
+	if Board[x][y] == BLACK {
+		to_capt = WHITE
+	}
+
+	if (x-1 >= 0 && x+1 <= 19 && Board[x-1][y] == to_capt && Board[x+1][y] == Board[x][y]) ||
+		(x-1 >= 0 && x+1 <= 19 && Board[x-1][y] == Board[x][y] && Board[x+1][y] == to_capt) ||
+		(y+1 <= 19 && y-1 >= 0 && Board[x][y+1] == to_capt && Board[x][y-1] == Board[x][y]) ||
+		(y+1 <= 19 && y-1 >= 0 && Board[x][y+1] == Board[x][y] && Board[x][y-1] == to_capt) ||
+		(x-1 >= 0 && y+1 <= 19 && x+1 <= 19 && y-1 >= 0 && Board[x-1][y+1] == Board[x][y] && Board[x+1][y-1] == to_capt) ||
+		(x-1 >= 0 && y+1 <= 19 && x+1 <= 19 && y-1 >= 0 && Board[x-1][y+1] == to_capt && Board[x+1][y-1] == Board[x][y]) ||
+		(x-1 >= 0 && y-1 >= 0 && x+1 <= 19 && y+1 <= 19 && Board[x-1][y-1] == Board[x][y] && Board[x+1][y+1] == to_capt) ||
+		(x-1 >= 0 && y-1 >= 0 && x+1 <= 19 && y+1 <= 19 && Board[x-1][y-1] == to_capt && Board[x+1][y+1] == Board[x][y]) {
+		return true
+	}
+	return false
+}
+
+func breakable_same(coord []int) bool {
+	x := coord[0]
+	y := coord[1]
+	to_capt := BLACK
+
+	if Board[x][y] == BLACK {
+		to_capt = WHITE
+	}
+
+	if (x-2 >= 0 && Board[x-1][y] == Board[x][y] && Board[x-2][y] == to_capt) ||
+		(x+2 <= 19 && Board[x+1][y] == Board[x][y] && Board[x+2][y] == to_capt) ||
+		(y+2 <= 19 && Board[x][y+1] == Board[x][y] && Board[x][y+2] == to_capt) ||
+		(y-2 >= 0 && Board[x][y-1] == Board[x][y] && Board[x][y-2] == to_capt) ||
+		(x-2 >= 0 && y+2 <= 19 && Board[x-1][y+1] == Board[x][y] && Board[x-2][y+2] == to_capt) ||
+		(x+2 <= 19 && y-2 >= 0 && Board[x+1][y-1] == Board[x][y] && Board[x+2][y-2] == to_capt) ||
+		(x-2 >= 0 && y-2 >= 0 && Board[x-1][y-1] == Board[x][y] && Board[x-2][y-2] == to_capt) ||
+		(x+2 <= 19 && y+2 <= 19 && Board[x+1][y+1] == Board[x][y] && Board[x+2][y+2] == to_capt) {
+		return true
+	}
+	return false
+}
+
+func breakable(coord []int) bool {
+	if breakable_same(coord) {
+		return true
+	} else if breakable_opos(coord) {
+		return true
+	}
+	return false
+}
+
+func check_all_three_free(coord []int, player int) int {
+	x := coord[0]
+	y := coord[1]
+
+	xori := coord[0]
+	yori := coord[1]
+
+	nb_free := 0
+
+	for i := y; (i >= 0) && Board[x][i] == Board[x][y]; i-- {
+		if (xori != x || yori != i) && create_three_free([]int{x, i}, player) > 1 {
+			nb_free++
+			fmt.Print("Fin one hori1\n")
+			break
+		}
+	}
+	for i := y; (i <= 19) && Board[x][i] == Board[x][y]; i++ {
+		if (xori != x || yori != i) && create_three_free([]int{x, i}, player) > 1 {
+			nb_free++
+			fmt.Print("Fin one hori2\n")
+			break
+		}
+
+	}
+	for i := x; (i <= 19) && Board[i][y] == Board[x][y]; i++ {
+		if (xori != i || yori != y) && create_three_free([]int{i, y}, player) > 1 {
+			nb_free++
+			fmt.Print("Fin one verti1\n")
+			break
+		}
+
+	}
+	for i := x; (i >= 0) && Board[i][y] == Board[x][y]; i-- {
+		if (xori != i || yori != y) && create_three_free([]int{i, y}, player) > 1 {
+			nb_free++
+			fmt.Print("Fin one verti2\n")
+			break
+		}
+
+	}
+
+	for x, y = coord[0]-1, coord[1]-1; x >= 0 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if (xori != x || yori != y) && create_three_free([]int{x, y}, player) > 1 {
+			nb_free++
+			fmt.Print("Fin one slash1\n")
+			break
+		}
+
+		x--
+		y--
+	}
+	for x, y = coord[0]+1, coord[1]+1; x <= 19 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if (xori != x || yori != y) && create_three_free([]int{x, y}, player) > 1 {
+			nb_free++
+			fmt.Print("Fin one slash2\n")
+			break
+		}
+
+		x++
+		y++
+	}
+
+	for x, y = coord[0]-1, coord[1]+1; x >= 0 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if (xori != x || yori != y) && create_three_free([]int{x, y}, player) > 1 {
+			nb_free++
+			fmt.Print("Fin one anti1\n")
+			break
+		}
+		x--
+		y++
+	}
+	for x, y = coord[0]+1, coord[1]-1; x <= 19 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if (xori != x || yori != y) && create_three_free([]int{x, y}, player) > 1 {
+			nb_free++
+			fmt.Print("Fin one anti2\n")
+			break
+		}
+		x++
+		y--
+	}
+	return nb_free
+}
+
+func create_three_free(coord []int, player int) int {
+	x := coord[0]
+	y := coord[1]
+
+	nb_free := 0
+	nb_free_hori := 0
+	nb_free_verti := 0
+	nb_free_slash := 0
+	nb_free_anti := 0
+
+	tmp := nb_free
+	for i, v, stone := y, 0, 1; (i >= 0) && (Board[x][i] == player || Board[x][i] == NONE) && v <= 3; i-- {
+		if Board[x][i] == player && stone < 3 {
+			stone++
+			nb_free_hori++
+		}
+		if stone == 3 {
+			if i-1 >= 0 && Board[x][i-1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+	}
+	for i, v, stone := y, 0, 1; (i <= 19) && (Board[x][i] == player || Board[x][i] == NONE) && v <= 3; i++ {
+		if Board[x][i] == player && stone < 3 {
+			stone++
+			nb_free_hori++
+		}
+		if stone == 3 {
+			if i+1 <= 19 && Board[x][i+1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+	}
+	if nb_free_hori == 2 && tmp == nb_free {
+		nb_free++
+	}
+	tmp = nb_free
+	for i, v, stone := x, 0, 1; (i <= 19) && (Board[i][y] == player || Board[i][y] == NONE) && v <= 3; i++ {
+		if Board[i][y] == player && stone < 3 {
+			stone++
+			nb_free_verti++
+		}
+		if stone == 3 {
+			if i+1 <= 19 && Board[i+1][y] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+
+	}
+	for i, v, stone := x, 0, 1; (i >= 0) && (Board[i][y] == player || Board[i][y] == NONE) && v <= 3; i-- {
+		if Board[i][y] == player && stone < 3 {
+			stone++
+			nb_free_verti++
+		}
+		if stone == 3 {
+			if i-1 >= 0 && Board[i-1][y] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+	}
+	if nb_free_verti == 2 && tmp == nb_free {
+		nb_free++
+	}
+	tmp = nb_free
+	for x, y, v, stone := coord[0]-1, coord[1]-1, 0, 1; x >= 0 && y >= 0 && (Board[x][y] == player || Board[x][y] == NONE) && v <= 3; {
+		if Board[x][y] == player && stone < 3 {
+			stone++
+			nb_free_slash++
+		}
+		if stone == 3 {
+			if x-1 >= 0 && y-1 >= 0 && Board[x-1][y-1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+		x--
+		y--
+	}
+	for x, y, v, stone := coord[0]+1, coord[1]+1, 0, 1; x <= 19 && y <= 19 && (Board[x][y] == player || Board[x][y] == NONE) && v <= 3; {
+		if Board[x][y] == player && stone < 3 {
+			stone++
+			nb_free_slash++
+		}
+		if stone == 3 {
+			if x+1 <= 19 && y+1 <= 19 && Board[x+1][y+1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+		x++
+		y++
+	}
+	if nb_free_slash == 2 && tmp == nb_free {
+		nb_free++
+	}
+	tmp = nb_free
+	for x, y, v, stone := coord[0]-1, coord[1]+1, 0, 1; x >= 0 && y <= 19 && (Board[x][y] == player || Board[x][y] == NONE) && v <= 3; {
+		if Board[x][y] == player && stone < 3 {
+			stone++
+			nb_free_anti++
+		}
+		if stone == 3 {
+			if x-1 >= 0 && y+1 <= 19 && Board[x-1][y+1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+		x--
+		y++
+	}
+	for x, y, v, stone := coord[0]+1, coord[1]-1, 0, 1; x <= 19 && y >= 0 && (Board[x][y] == player || Board[x][y] == NONE) && v <= 3; {
+		if Board[x][y] == player && stone < 3 {
+			stone++
+			nb_free_anti++
+		}
+		if stone == 3 {
+			if x+1 <= 19 && y-1 >= 0 && Board[x+1][y-1] == NONE {
+				nb_free++
+			}
+			break
+		}
+		v++
+		x++
+		y--
+	}
+	if nb_free_anti == 2 && tmp == nb_free {
+		nb_free++
+	}
+	return nb_free
+}
+
+func dual_three(coord []int, player int) bool {
+
+	res := create_three_free(coord, player)
+	if res > 1 {
+		fmt.Print("\nDUAL THREE\n")
+		return true
+	}
+	if res == 1 {
+		fmt.Print("\nUN THREE\n")
+		ff := check_all_three_free(coord, player)
+		fmt.Printf("\ntrouvé '%d' THREE\n", ff)
+		if ff >= 3 {
+			fmt.Printf("\accepte '%d' THREE\n", ff)
+			return true
+		}
+	}
+	return false
+}
+
+func capture(coord []int) [][]int {
+	x := coord[0]
+	y := coord[1]
+	i := 0
+
+	var capt = make([][]int, 19)
+	to_capt := BLACK
+	if Board[x][y] == BLACK {
+		to_capt = WHITE
+	}
+
+	// hori
+
+	if x-3 >= 0 && Board[x-1][y] == to_capt && Board[x-2][y] == to_capt && Board[x-3][y] == Board[x][y] {
+		capt[i] = []int{x - 1, y}
+		capt[i+1] = []int{x - 2, y}
+		i += 2
+	}
+	if x+3 <= 19 && Board[x+1][y] == to_capt && Board[x+2][y] == to_capt && Board[x+3][y] == Board[x][y] {
+		capt[i] = []int{x + 1, y}
+		capt[i+1] = []int{x + 2, y}
+		i += 2
+	}
+
+	//verti
+	if y+3 <= 19 && Board[x][y+1] == to_capt && Board[x][y+2] == to_capt && Board[x][y+3] == Board[x][y] {
+		capt[i] = []int{x, y + 1}
+		capt[i+1] = []int{x, y + 2}
+		i += 2
+	}
+	if y-3 >= 0 && Board[x][y-1] == to_capt && Board[x][y-2] == to_capt && Board[x][y-3] == Board[x][y] {
+		capt[i] = []int{x, y - 1}
+		capt[i+1] = []int{x, y - 2}
+		i += 2
+	}
+
+	// /
+	if x-3 >= 0 && y+3 <= 19 && Board[x-1][y+1] == to_capt && Board[x-2][y+2] == to_capt && Board[x-3][y+3] == Board[x][y] {
+		capt[i] = []int{x - 1, y + 1}
+		capt[i+1] = []int{x - 2, y + 2}
+		i += 2
+	}
+	if x+3 <= 19 && y-3 >= 0 && Board[x+1][y-1] == to_capt && Board[x+2][y-2] == to_capt && Board[x+3][y-3] == Board[x][y] {
+		capt[i] = []int{x + 1, y - 1}
+		capt[i+1] = []int{x + 2, y - 2}
+		i += 2
+	}
+
+	// \
+	if x-3 >= 0 && y-3 >= 0 && Board[x-1][y-1] == to_capt && Board[x-2][y-2] == to_capt && Board[x-3][y-3] == Board[x][y] {
+		capt[i] = []int{x - 1, y - 1}
+		capt[i+1] = []int{x - 2, y - 2}
+		i += 2
+	}
+	if x+3 <= 19 && y+3 <= 19 && Board[x+1][y+1] == to_capt && Board[x+2][y+2] == to_capt && Board[x+3][y+3] == Board[x][y] {
+		capt[i] = []int{x + 1, y + 1}
+		capt[i+1] = []int{x + 2, y + 2}
+		i += 2
+	}
+	if i != 0 {
+		return capt
+	}
+	return nil
+}
+
+func check_align(coord []int) bool {
+	hor := 0
+	vert := 0
+	tl := 1
+	tr := 1
+	x := coord[0]
+	y := coord[1]
+
+	//check hor
+	for i := y; (i >= 0) && Board[x][i] == Board[x][y]; i-- {
+		if breakable([]int{x, i}) == false {
+			hor++
+		} else {
+			break
+		}
+	}
+	for i := y; (i <= 19) && Board[x][i] == Board[x][y]; i++ {
+		if breakable([]int{x, i}) == false {
+			hor++
+		} else {
+			break
+		}
+	}
+	for i := x; (i <= 19) && Board[i][y] == Board[x][y]; i++ {
+		if breakable([]int{i, y}) == false {
+			vert++
+		} else {
+			break
+		}
+	}
+	for i := x; (i >= 0) && Board[i][y] == Board[x][y]; i-- {
+		if breakable([]int{i, y}) == false {
+			vert++
+		} else {
+			break
+		}
+	}
+	// check \
+	for x, y = coord[0]-1, coord[1]-1; x >= 0 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if breakable([]int{x, y}) == false {
+			tl++
+		} else {
+			break
+		}
+		x--
+		y--
+	}
+	for x, y = coord[0]+1, coord[1]+1; x <= 19 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if breakable([]int{x, y}) == false {
+			tl++
+		} else {
+			break
+		}
+		x++
+		y++
+	}
+
+	//check /
+	for x, y = coord[0]-1, coord[1]+1; x >= 0 && y <= 19 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if breakable([]int{x, y}) == false {
+			tr++
+		} else {
+			break
+		}
+		x--
+		y++
+	}
+	for x, y = coord[0]+1, coord[1]-1; x <= 19 && y >= 0 && Board[x][y] == Board[coord[0]][coord[1]]; {
+		if breakable([]int{x, y}) == false {
+			tr++
+		} else {
+			break
+		}
+		x++
+		y--
+	}
+
+	if hor > NB_ALIGN_TO_WIN || vert > NB_ALIGN_TO_WIN || tl >= NB_ALIGN_TO_WIN || tr >= NB_ALIGN_TO_WIN {
+		return true
+	}
+	return false
+}
+
+func check_win(coord []int) (bool, int) {
+	if check_align(coord) == true {
+		return true, getinvturn()
+	}
+	if BPOW == 10 {
+		return true, BLACK
+	}
+	if WPOW == 10 {
+		return true, WHITE
+	}
+	return false, -1
+}
+
+func referee(coord []string, ws *websocket.Conn) (bool, bool, int) {
+
+	for pl, _ := range players {
+		if (pl.ws == ws) && pl.player_color != Turn {
+			return false, false, -1
+		}
+	}
+
+	x, _ := strconv.Atoi(coord[0])
+	y, _ := strconv.Atoi(coord[1])
+
+	coordint := []int{x, y}
+
+	if Board[x][y] == NONE {
+		if dual_three(coordint, Turn) == false {
+			Board[x][y] = Turn
+			if Turn == BLACK {
+				Turn = WHITE
+			} else {
+				Turn = BLACK
+			}
+			send_capture(capture(coordint), ws)
+			win, who := check_win(coordint)
+			return true, win, who
+		}
+	}
+	return false, false, -1
+}
