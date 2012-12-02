@@ -8,7 +8,8 @@ if(ws != null) {
   ws = null;
 }
 
-ws = new WebSocket("ws://localhost:1112/ws");
+var host = window.location.hostname;
+ws = new WebSocket("ws://"+host+":1112/ws");
 
 ws.onopen = function() {
   console.log("open");
@@ -25,8 +26,8 @@ ws.onmessage = function(e) {
 
     if(data[0] == "win") {
       ws.send("reset");
-      $("#game").slideUp(300);
-      $("#menu").show(300);
+      $("#game").slideUp();
+      $("#menu").show();
 
       $("#victory").text(data[1] + " is the winner !!!").show(300);
     } 
@@ -73,8 +74,8 @@ $("#me").text(me);
 
 $(".selectpvp").click(function() {
   $("#victory").hide();
-  $("#menu").slideUp(300);
-  $("#game").show(300);
+  $("#menu").slideUp();
+  $("#game").show();
 });
 
 $("#reset").click(function() {
