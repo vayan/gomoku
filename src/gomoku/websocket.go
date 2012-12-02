@@ -24,23 +24,24 @@ func ws_send(buf string, ws *websocket.Conn) {
 	fmt.Printf("send:%s\n", buf)
 }
 
-func ws_recv(ws *websocket.Conn) string {
+func ws_recv(ws *websocket.Conn) (string, int) {
 	var buf string
-	var connect Connection
+	erri := 0
 
 	err := websocket.Message.Receive(ws, &buf)
 	if err != nil {
 		for pl, _ := range players {
 			if pl.ws == ws {
-				connect = pl
+				erri = 1
+				fmt.Printf("\n*************Deconnexion de %s\n", getStringPl(pl.player_color))
+				delete(players, pl)
 				break
 			}
 		}
 		fmt.Println(err)
-		delete(players, connect)
 	}
-	fmt.Printf("recv coord:%s\n", buf)
-	return buf
+	fmt.Printf("recv :%s\n", buf)
+	return buf, erri
 }
 
 func sendboard(ws *websocket.Conn) {
@@ -59,24 +60,42 @@ func sendboard(ws *websocket.Conn) {
 	}
 }
 
-func SendRecvCoord(ws *websocket.Conn) {
-	slotleft := BLACK
+func getFreeSlot() int {
+	slotleft, black, white := NONE, 0, 0
+
 	for pl, _ := range players {
 		if pl.player_color == BLACK {
-			slotleft = WHITE
-		} else {
-			slotleft = NONE
+			black = 1
+		}
+		if pl.player_color == WHITE {
+			white = 1
 		}
 	}
-	sock_cli := Connection{ws, slotleft, false, ws.Request().RemoteAddr}
-	fmt.Printf("\nNouveau joueurs de type %d\n", slotleft)
+
+	if black == 0 {
+		slotleft = BLACK
+	} else if white == 0 && black == 1 {
+		slotleft = WHITE
+	} else if black == 1 && white == 1 {
+		slotleft = NONE
+	}
+	return slotleft
+}
+
+func SendRecvCoord(ws *websocket.Conn) {
+
+	sock_cli := Connection{ws, getFreeSlot(), false, ws.Request().RemoteAddr}
+	fmt.Printf("\nNouveau joueurs de type %d\n", sock_cli.player_color)
 	sendboard(ws)
 	players[sock_cli] = 0
 
 	for {
 		var buf string
+		var erri int
 
-		buf = ws_recv(ws)
+		if buf, erri = ws_recv(ws); erri == 1 {
+			return
+		}
 
 		//check avec le referee
 		if buf == "reset" {
@@ -89,22 +108,25 @@ func SendRecvCoord(ws *websocket.Conn) {
 		} else if buf == "getscore" {
 			ws_send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
 		} else {
-			mov, win, who := referee(strings.Split(buf, ","), ws)
-			if win {
-				buf = "win," + getStringPl(who)
-				for pl, _ := range players {
-					ws_send(buf, pl.ws)
+			coord := strings.Split(buf, ",")
+			if len(coord) > 1 {
+				mov, win, who := referee(coord, ws)
+				if win {
+					buf = "win," + getStringPl(who)
+					for pl, _ := range players {
+						ws_send(buf, pl.ws)
+					}
+				} else if mov == true {
+					buf += "," + getStringTurnInv()
+					for pl, _ := range players {
+						ws_send(buf, pl.ws)
+					}
+				} else {
+					buf = "error"
 				}
-			} else if mov == true {
-				buf += "," + getStringTurnInv()
-				for pl, _ := range players {
-					ws_send(buf, pl.ws)
-				}
-			} else {
-				buf = "error"
+				ws_send(buf, ws)
+				AffBoard(Board, GOBANSIZE)
 			}
-			ws_send(buf, ws)
-			AffBoard(Board, GOBANSIZE)
 		}
 
 	}
