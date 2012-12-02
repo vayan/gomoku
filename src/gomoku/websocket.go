@@ -30,10 +30,11 @@ func ws_recv(ws *websocket.Conn) (string, int) {
 
 	err := websocket.Message.Receive(ws, &buf)
 	if err != nil {
+		erri = 1
 		for pl, _ := range players {
 			if pl.ws == ws {
-				erri = 1
 				fmt.Printf("\n*************Deconnexion de %s\n", getStringPl(pl.player_color))
+				//pl.ws.Close()
 				delete(players, pl)
 				break
 			}
@@ -100,6 +101,7 @@ func SendRecvCoord(ws *websocket.Conn) {
 		//check avec le referee
 		if buf == "reset" {
 			Board = initBoard(GOBANSIZE)
+			return
 
 		} else if buf == "getturn" {
 			ws_send("turn,"+getStringTurn(), ws)

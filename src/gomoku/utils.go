@@ -39,6 +39,10 @@ func initBoard(size int) [][]int {
 	BPOW = 0
 	WPOW = 0
 	Turn = BLACK
+
+	for pl, _ := range players {
+		pl.ws.Close()
+	}
 	players = make(map[Connection]int)
 
 	for x := 0; x < size; x++ {
