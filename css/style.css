@@ -89,6 +89,10 @@ table {
 	background-color : white;
 }
 
+.newstone {
+	border: 2px solid red;
+}
+
 .boardclic {
 	z-index: 5;
 	margin-top: 17px;

@@ -13,6 +13,7 @@ type Connection struct {
 	ws           *websocket.Conn
 	player_color int
 	is_ia        bool
+	clientip     string
 }
 
 func ws_send(buf string, ws *websocket.Conn) {
@@ -67,7 +68,7 @@ func SendRecvCoord(ws *websocket.Conn) {
 			slotleft = NONE
 		}
 	}
-	sock_cli := Connection{ws, slotleft, false}
+	sock_cli := Connection{ws, slotleft, false, ws.Request().RemoteAddr}
 	fmt.Printf("\nNouveau joueurs de type %d\n", slotleft)
 	sendboard(ws)
 	players[sock_cli] = 0
