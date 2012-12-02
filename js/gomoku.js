@@ -52,6 +52,9 @@ ws.onmessage = function(e) {
     } 
     //who I am WHO ?!
     else if(data[0] == "me") {
+      if (data[1] == " You are OBS") {
+        $("#reset").attr("disabled", "disabled");
+      }
       $("#me").text(data[1]);
     } 
     //new stone
