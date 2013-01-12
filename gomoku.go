@@ -34,13 +34,20 @@ func capture_win() {
 
 func send_capture(pow [][]int, ws *websocket.Conn) {
 	var buff string
+	flag := 0
 
 	if pow != nil {
 		for key := range pow {
+			if flag == 0 {
+				buff = "REM "
+			}
 			if pow[key] != nil {
-				buff = strconv.Itoa(pow[key][0]) + "," + strconv.Itoa(pow[key][1]) + ",pow"
-				for pl, _ := range players {
-					ws_send(buff, pl.ws)
+				buff += strconv.Itoa(pow[key][0]) + " " + strconv.Itoa(pow[key][1]) + " "
+				if flag == 1 {
+					flag = 0
+					for pl, _ := range players {
+						ws_send(buff, pl.ws)
+					}
 				}
 				if Board[pow[key][0]][pow[key][1]] == BLACK {
 					WPOW += 1
@@ -48,6 +55,7 @@ func send_capture(pow [][]int, ws *websocket.Conn) {
 					BPOW += 1
 				}
 				Board[pow[key][0]][pow[key][1]] = NONE
+				flag++
 			}
 
 		}

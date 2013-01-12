@@ -1,7 +1,9 @@
 var ws;
-var turn = "Turn : unknown";
-var score = "Black : 0 | White : 0"
-var me = "You are : unknown"
+var turn = "black";
+var score = "Black : 0 | White : 0";
+var me = "You are : unknown";
+var canplay = false;
+var color = "black";
 
 if(ws != null) {
   ws.close();
@@ -12,9 +14,13 @@ var host = window.location.hostname;
 ws = new WebSocket("ws://" + host + ":1112/ws");
 
 //init page
-$("#turn").text(turn);
+$("#turn").text("IDK");
 $("#score").text(score);
 $("#me").text(me);
+
+function change_turn() {
+
+}
 
 ws.onopen = function() {
   console.log("open");
@@ -23,11 +29,10 @@ ws.onopen = function() {
 };
 
 ws.onmessage = function(e) {
-  console.log("receive :" + e.data);
-
+  console.log("receive : '" + e.data + "'");
 
   if(e.data != "error") {
-    var data = e.data.split(',');
+    var data = e.data.split(' ');
 
     //someone won
     if(data[0] == "win") { 
@@ -37,37 +42,41 @@ ws.onmessage = function(e) {
       $("#victory").text(data[1] + " is the winner !!!").show(300);
     } 
     //stone captured
-    else if(data[2] == "pow") {
-      $('.pos' + data[0] + 'y' + data[1]).removeClass("bgblack");
-      $('.pos' + data[0] + 'y' + data[1]).removeClass("bgwhite");
-    } 
-    //update turn
-    else if(data[0] == "turn") {
-      turn = data[1]
-      $("#turn").text("Turn : " + turn);
+    else if(data[0] == "REM") {
+      $('.pos' + data[1] + 'y' + data[2]).removeClass("bgblack");
+      $('.pos' + data[1] + 'y' + data[2]).removeClass("bgwhite");
+      $('.pos' + data[3] + 'y' + data[4]).removeClass("bgblack");
+      $('.pos' + data[3] + 'y' + data[4]).removeClass("bgwhite");
     } 
     // update score
     else if(data[0] == "score") {
       $("#score").text(data[1]);
     } 
     //who I am WHO ?!
-    else if(data[0] == "me") {
-      if (data[1] == " You are OBS") {
-        $("#reset").attr("disabled", "disabled");
-      }
-      $("#me").text(data[1]);
-    } 
+    // else if(data[0] == "me") {
+    //   if (data[1] == " You are OBS") {
+    //     $("#reset").attr("disabled", "disabled");
+    //   }
+    //   $("#me").text(data[1]);
+    // } 
     //new stone
-    else {
+    else if (data[0] == "YOURTURN") {
+      $("#turn").text("YOUR TURN");
+    }
+    else if(data[0] == "ADD") {
       $('.boardclic td div').removeClass("newstone");
-      $('.pos' + data[0] + 'y' + data[1]).addClass("bg" + data[2]);
-      $('.pos' + data[0] + 'y' + data[1]).addClass("newstone");
-      if(data[2] == "black") {
+      console.log("ADD pierre in X "+data[1]+" Y "+data[2]);
+      if (turn == color) {
+        $("#turn").text("NOT YOU");
+      }
+      $('.pos' + data[1] + 'y' + data[2]).addClass("bg" + turn);
+      $('.pos' + data[1] + 'y' + data[2]).addClass("newstone");
+      if(turn == "black") {
         turn = "white";
       } else {
         turn = "black";
       }
-      $("#turn").text("Turn : " + turn);
+      //$("#turn").text("Turn : " + turn);
     }
 
   }
@@ -95,6 +104,6 @@ $("#reset").click(function() {
 $(".boardclic td").click(function() {
   var stone = $(this).find(".stone");
   var coord = stone.text();
-  ws.send(coord);
+  ws.send("PLAY "+coord);
   ws.send("getscore");
 });

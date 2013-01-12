@@ -2,7 +2,7 @@ package main
 
 import (
 	"code.google.com/p/go.net/websocket"
-	"fmt"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -19,9 +19,9 @@ type Connection struct {
 func ws_send(buf string, ws *websocket.Conn) {
 	err := websocket.Message.Send(ws, buf)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
-	fmt.Printf("send:%s\n", buf)
+	log.Printf("send:%s\n", buf)
 }
 
 func ws_recv(ws *websocket.Conn) (string, int) {
@@ -33,15 +33,15 @@ func ws_recv(ws *websocket.Conn) (string, int) {
 		erri = 1
 		for pl, _ := range players {
 			if pl.ws == ws {
-				fmt.Printf("\n*************Deconnexion de %s\n", getStringPl(pl.player_color))
+				log.Printf("\n*************Deconnexion de %s\n", getStringPl(pl.player_color))
 				//pl.ws.Close()
 				delete(players, pl)
 				break
 			}
 		}
-		fmt.Println(err)
+		log.Println(err)
 	}
-	fmt.Printf("recv :%s\n", buf)
+	log.Printf("recv :%s\n", buf)
 	return buf, erri
 }
 
@@ -57,7 +57,7 @@ func sendboard(ws *websocket.Conn) {
 				ws_send(buf, ws)
 			}
 		}
-		fmt.Print("\n")
+		log.Print("\n")
 	}
 }
 
@@ -86,31 +86,32 @@ func getFreeSlot() int {
 func SendRecvCoord(ws *websocket.Conn) {
 
 	sock_cli := Connection{ws, getFreeSlot(), false, ws.Request().RemoteAddr}
-	fmt.Printf("\nNouveau joueurs de type %d\n", sock_cli.player_color)
+	log.Printf("\nNouveau joueurs de type %d\n", sock_cli.player_color)
 	sendboard(ws)
 	players[sock_cli] = 0
 
 	for {
-		var buf string
-		var erri int
-
-		if buf, erri = ws_recv(ws); erri == 1 {
+		msg_cl, erri := ws_recv(ws)
+		if erri == 1 {
 			return
 		}
+		buff := strings.Split(msg_cl, " ")
+
+		buf := buff[0]
 
 		//check avec le referee
-		if buf == "reset" {
-			Board = initBoard(GOBANSIZE)
-			return
 
-		} else if buf == "getturn" {
-			ws_send("turn,"+getStringTurn(), ws)
-		} else if buf == "getme" {
-			ws_send("me, You are "+getStringPl(getClient(ws).player_color), ws)
-		} else if buf == "getscore" {
+		switch buf {
+		case "reset":
+			Board = initBoard(GOBANSIZE)
+		//case "getturn":
+		//	ws_send("turn "+getStringTurn(), ws)
+		case "getme":
+			ws_send("me You are "+getStringPl(getClient(ws).player_color), ws)
+		case "getscore":
 			ws_send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
-		} else {
-			coord := strings.Split(buf, ",")
+		case "PLAY":
+			coord := []string{buff[1], buff[2]}
 			if len(coord) > 1 {
 				mov, win, who := referee(coord, ws)
 				if win {
@@ -119,17 +120,20 @@ func SendRecvCoord(ws *websocket.Conn) {
 						ws_send(buf, pl.ws)
 					}
 				} else if mov == true {
-					buf += "," + getStringTurnInv()
+					buf = "ADD " + buff[1] + " " + buff[2]
 					for pl, _ := range players {
 						ws_send(buf, pl.ws)
+						if pl.player_color == Turn {
+							ws_send("YOURTURN", pl.ws)
+						}
 					}
 				} else {
 					buf = "error"
 				}
-				ws_send(buf, ws)
+				//ws_send(buf, ws)
 				AffBoard(Board, GOBANSIZE)
 			}
-		}
 
+		}
 	}
 }

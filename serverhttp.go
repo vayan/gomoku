@@ -21,7 +21,7 @@ func GenBoard(size int, stone bool) string {
 				color = ""
 			}
 			if stone == true {
-				board += " <td><div class='" + color + " stone pos" + strconv.Itoa(x) + "y" + strconv.Itoa(y) + "'>" + strconv.Itoa(x) + "," + strconv.Itoa(y) + "</div></td> "
+				board += " <td><div class='" + color + " stone pos" + strconv.Itoa(x) + "y" + strconv.Itoa(y) + "'>" + strconv.Itoa(x) + " " + strconv.Itoa(y) + "</div></td> "
 			} else {
 				board += " <td></td> "
 			}
