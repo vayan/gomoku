@@ -99,17 +99,39 @@ func engine(msg_cl string, con Connection) {
 
 	buf := buff[0]
 
+	//check le mode
+	if Mode == UNKNOWN {
+		if buf == "MODE" {
+			if buff[1] == "pve" {
+				Mode = PVE
+				con.player_color = BLACK
+			}
+			if buff[1] == "pvp" {
+				Mode = PVP
+			}
+		}
+		return
+	}
+
 	//check avec le referee
 
 	switch buf {
 	case "reset":
 		Board = initBoard(GOBANSIZE)
+		send("RESET", con)
 	//case "getturn":
-	//	send("turn "+getStringTurn(), ws)
+	//  send("turn "+getStringTurn(), ws)
 	//case "getme":
 	//send("me You are "+getStringPl(getClient(ws).player_color), ws)
 	//case "getscore":
 	//send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
+	case "GETCOLOR":
+		send("COLOR "+getStringPl(con.player_color), con)
+	case "GETTURN":
+		send("TURN "+getStringTurn(), con)
+	case "CONNECT CLIENT":
+		con.is_ia = true
+		con.player_color = WHITE
 	case "PLAY":
 		coord := []string{buff[1], buff[2]}
 		if len(coord) > 1 {

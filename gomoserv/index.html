@@ -6,26 +6,26 @@
   <link href='http://fonts.googleapis.com/css?family=Mako' rel='stylesheet' type='text/css'>
 </head>
 <body>
-<div id="wrap">
-  <div id="title">GOmoku</div>
-  <div id="menu">
-    <input type="button" class="selectpvp" value="Player vs. Player" />
-    <input type="button" class="selectpvp" value="Player vs.  IA" />
-    <div id="victory"></div>
-  </div>
-
-  <div id="game">
-    <div id="head">
-      <input type="button" id="reset" value="Restart" /> <span id="turn"></span><span id="me"></span><span id="score"></span>
+  <div id="wrap">
+    <div id="title">GOmoku</div>
+    <div id="menu">
+      <input type="button" class="selectpvp" value="Player vs. Player" />
+      <input type="button" class="selectpve" value="Player vs.  IA" />
+      <div id="victory"></div>
     </div>
+
+    <div id="game">
+      <div id="head">
+        <input type="button" id="reset" value="Restart" /> <span id="turn"></span><span id="me"></span><span id="score"></span>
+      </div>
       <table class="boardclic">
         {{.BoardClick}}
       </table> 
       <table class="board">
         {{.Board}}
       </table>    
+    </div>
   </div>
-</div>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> 
   <script src="js/gomoku.js"></script> 
 </body>

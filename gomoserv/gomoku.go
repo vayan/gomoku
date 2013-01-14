@@ -10,8 +10,12 @@ var Board [][]int = initBoard(GOBANSIZE)
 var Turn = BLACK
 var BPOW = 0
 var WPOW = 0
+var Mode = UNKNOWN
 
 const (
+	UNKNOWN         = -1
+	PVP             = 1
+	PVE             = 2
 	BLACK           = 1
 	WHITE           = 2
 	IA              = 3
