@@ -1,7 +1,6 @@
 package main
 
 import (
-	"code.google.com/p/go.net/websocket"
 	"html/template"
 	"strconv"
 )
@@ -32,7 +31,7 @@ func capture_win() {
 
 }
 
-func send_capture(pow [][]int, ws *websocket.Conn) {
+func send_capture(pow [][]int, c Connection) {
 	var buff string
 	flag := 0
 
@@ -52,7 +51,7 @@ func send_capture(pow [][]int, ws *websocket.Conn) {
 				if flag == 1 {
 					flag = 0
 					for pl, _ := range players {
-						ws_send(buff, pl.ws)
+						send(buff, pl)
 					}
 					continue
 				}

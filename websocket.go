@@ -3,6 +3,7 @@ package main
 import (
 	"code.google.com/p/go.net/websocket"
 	"log"
+	"net"
 	"strconv"
 	"strings"
 )
@@ -11,9 +12,18 @@ var players = make(map[Connection]int)
 
 type Connection struct {
 	ws           *websocket.Conn
+	s            net.Conn
 	player_color int
 	is_ia        bool
 	clientip     string
+}
+
+func send(buf string, c Connection) {
+	if c.ws != nil {
+		ws_send(buf, c.ws)
+		return
+	}
+	c.s.Write([]byte(buf))
 }
 
 func ws_send(buf string, ws *websocket.Conn) {
@@ -45,16 +55,17 @@ func ws_recv(ws *websocket.Conn) (string, int) {
 	return buf, erri
 }
 
-func sendboard(ws *websocket.Conn) {
+func sendboard(s Connection) {
+
 	for x := 0; x < 20; x++ {
 		for y := 0; y < 20; y++ {
 			buf := strconv.Itoa(x) + "," + strconv.Itoa(y)
 			if Board[x][y] == BLACK {
 				buf += ",black"
-				ws_send(buf, ws)
+				send(buf, s)
 			} else if Board[x][y] == WHITE {
 				buf += ",white"
-				ws_send(buf, ws)
+				send(buf, s)
 			}
 		}
 		log.Print("\n")
@@ -83,11 +94,74 @@ func getFreeSlot() int {
 	return slotleft
 }
 
-func SendRecvCoord(ws *websocket.Conn) {
+func engine(msg_cl string, con Connection) {
+	buff := strings.Split(msg_cl, " ")
 
-	sock_cli := Connection{ws, getFreeSlot(), false, ws.Request().RemoteAddr}
+	buf := buff[0]
+
+	//check avec le referee
+
+	switch buf {
+	case "reset":
+		Board = initBoard(GOBANSIZE)
+	//case "getturn":
+	//	send("turn "+getStringTurn(), ws)
+	//case "getme":
+	//send("me You are "+getStringPl(getClient(ws).player_color), ws)
+	//case "getscore":
+	//send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
+	case "PLAY":
+		coord := []string{buff[1], buff[2]}
+		if len(coord) > 1 {
+			mov, win, _ := referee(coord, con)
+			if win {
+				send("WIN FIVEALIGN", con)
+				for pl, _ := range players {
+					if pl != con {
+						send("LOSE FIVEALIGN", pl)
+					}
+				}
+			} else if mov == true {
+				buf = "ADD " + buff[1] + " " + buff[2]
+				for pl, _ := range players {
+					send(buf, pl)
+					if pl.player_color == Turn {
+						send("YOURTURN", pl)
+					}
+				}
+			} else {
+				buf = "error"
+			}
+			//send(buf, ws)
+			AffBoard(Board, GOBANSIZE)
+		}
+
+	}
+}
+
+func HandleSocket(con net.Conn) {
+	var data = make([]byte, 70)
+
+	log.Printf("=== New Connection received from: %s \n", con.RemoteAddr())
+	sock_cli := Connection{nil, con, getFreeSlot(), false, ""}
 	log.Printf("\nNouveau joueurs de type %d\n", sock_cli.player_color)
-	sendboard(ws)
+	sendboard(sock_cli)
+	players[sock_cli] = 0
+	for {
+		n, _ := con.Read(data)
+		buff := string(data[0 : n-1])
+		log.Printf("Receive '%s'", buff)
+		engine(buff, sock_cli)
+		//con.Write(data)
+	}
+	//log.Println("Data send by client: " + response
+}
+
+func HandleWebSocket(ws *websocket.Conn) {
+
+	sock_cli := Connection{ws, nil, getFreeSlot(), false, ws.Request().RemoteAddr}
+	log.Printf("\nNouveau joueurs de type %d\n", sock_cli.player_color)
+	sendboard(sock_cli)
 	players[sock_cli] = 0
 
 	for {
@@ -95,45 +169,6 @@ func SendRecvCoord(ws *websocket.Conn) {
 		if erri == 1 {
 			return
 		}
-		buff := strings.Split(msg_cl, " ")
-
-		buf := buff[0]
-
-		//check avec le referee
-
-		switch buf {
-		case "reset":
-			Board = initBoard(GOBANSIZE)
-		//case "getturn":
-		//	ws_send("turn "+getStringTurn(), ws)
-		case "getme":
-			ws_send("me You are "+getStringPl(getClient(ws).player_color), ws)
-		case "getscore":
-			ws_send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
-		case "PLAY":
-			coord := []string{buff[1], buff[2]}
-			if len(coord) > 1 {
-				mov, win, who := referee(coord, ws)
-				if win {
-					buf = "win," + getStringPl(who)
-					for pl, _ := range players {
-						ws_send(buf, pl.ws)
-					}
-				} else if mov == true {
-					buf = "ADD " + buff[1] + " " + buff[2]
-					for pl, _ := range players {
-						ws_send(buf, pl.ws)
-						if pl.player_color == Turn {
-							ws_send("YOURTURN", pl.ws)
-						}
-					}
-				} else {
-					buf = "error"
-				}
-				//ws_send(buf, ws)
-				AffBoard(Board, GOBANSIZE)
-			}
-
-		}
+		engine(msg_cl, sock_cli)
 	}
 }

@@ -34,12 +34,19 @@ ws.onmessage = function(e) {
   if(e.data != "error") {
     var data = e.data.split(' ');
 
-    //someone won
-    if(data[0] == "win") { 
+    //he won
+    if(data[0] == "LOSE") { 
+      $("#game").slideUp();
+      $("#menu").show();
+      $("#victory").text("YOU LOSE").show(300);
+    } 
+
+    //you won
+    if(data[0] == "WIN") { 
       ws.send("reset");
       $("#game").slideUp();
       $("#menu").show();
-      $("#victory").text(data[1] + " is the winner !!!").show(300);
+      $("#victory").text("YOU WIN").show(300);
     } 
     //stone captured
     else if(data[0] == "REM") {

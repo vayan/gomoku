@@ -1,7 +1,6 @@
 package main
 
 import (
-	"code.google.com/p/go.net/websocket"
 	"fmt"
 	"strconv"
 )
@@ -517,10 +516,10 @@ func check_win(coord []int) (bool, int) {
 	return false, -1
 }
 
-func referee(coord []string, ws *websocket.Conn) (bool, bool, int) {
+func referee(coord []string, c Connection) (bool, bool, int) {
 
 	for pl, _ := range players {
-		if (pl.ws == ws) && pl.player_color != Turn {
+		if (pl == c) && pl.player_color != Turn {
 			return false, false, -1
 		}
 	}
@@ -538,7 +537,7 @@ func referee(coord []string, ws *websocket.Conn) (bool, bool, int) {
 			} else {
 				Turn = BLACK
 			}
-			send_capture(capture(coordint), ws)
+			send_capture(capture(coordint), c)
 			win, who := check_win(coordint)
 			return true, win, who
 		}
