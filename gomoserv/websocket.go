@@ -23,7 +23,7 @@ func send(buf string, c Connection) {
 		ws_send(buf, c.ws)
 		return
 	}
-	c.s.Write([]byte(buf))
+	c.s.Write([]byte(buf + "\n"))
 }
 
 func ws_send(buf string, ws *websocket.Conn) {
@@ -60,11 +60,8 @@ func sendboard(s Connection) {
 	for x := 0; x < 20; x++ {
 		for y := 0; y < 20; y++ {
 			buf := strconv.Itoa(x) + "," + strconv.Itoa(y)
-			if Board[x][y] == BLACK {
-				buf += ",black"
-				send(buf, s)
-			} else if Board[x][y] == WHITE {
-				buf += ",white"
+			if Board[x][y] != NONE {
+				buf = "ADD " + strconv.Itoa(x) + " " + strconv.Itoa(y)
 				send(buf, s)
 			}
 		}
@@ -130,8 +127,12 @@ func engine(msg_cl string, con Connection) {
 	case "GETTURN":
 		send("TURN "+getStringTurn(), con)
 	case "CONNECT CLIENT":
+		log.Print("IA Connected")
 		con.is_ia = true
 		con.player_color = WHITE
+		if Turn == WHITE {
+			send("YOURTURN", con)
+		}
 	case "PLAY":
 		coord := []string{buff[1], buff[2]}
 		if len(coord) > 1 {
@@ -170,7 +171,12 @@ func HandleSocket(con net.Conn) {
 	sendboard(sock_cli)
 	players[sock_cli] = 0
 	for {
-		n, _ := con.Read(data)
+		n, err := con.Read(data)
+		if err != nil {
+			delete(players, sock_cli)
+			log.Println(err)
+			return
+		}
 		buff := string(data[0 : n-1])
 		log.Printf("Receive '%s'", buff)
 		engine(buff, sock_cli)
