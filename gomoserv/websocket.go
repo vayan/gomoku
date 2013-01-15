@@ -127,6 +127,10 @@ func engine(msg_cl string, con Connection) int {
 	//send("me You are "+getStringPl(getClient(ws).player_color), ws)
 	//case "getscore":
 	//send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
+	case "RULES":
+		DOUBLE_3 = Atoi(buff[1])
+		BREAKING_5 = Atoi(buff[2])
+		TIMEOUT = Atoi(buff[3])
 	case "GETCOLOR":
 		send("COLOR "+getStringPl(con.player_color), con)
 	case "GETTURN":

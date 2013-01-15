@@ -71,16 +71,7 @@ func eval_connection(move Coord, board [][]int, turn int) int {
 	//check connect friend
 	fhori, fverti, fdiagl, fdiagr := connected(move, board, turn)
 
-	//check connect ennemi
-	ehori, everti, ediagl, ediagr := connected(move, board, get_opos_turn(turn))
-
-	if fhori > 2 || fverti > 2 || fdiagl > 2 || fdiagr > 2 {
-		return fhori + fverti + fdiagl + fdiagr
-	}
-	if ehori > 2 || everti > 2 || ediagl > 2 || ediagr > 2 {
-		log.Print("Connected to ennemy !")
-	}
-	return 1
+	return fhori + fverti + fdiagl + fdiagr
 }
 
 func eval_move(move Coord, board [][]int, turn int) int {

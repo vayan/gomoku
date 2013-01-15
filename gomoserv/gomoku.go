@@ -5,12 +5,16 @@ import (
 	"strconv"
 )
 
-var Board [][]int = initBoard(GOBANSIZE)
-
-var Turn = BLACK
-var BPOW = 0
-var WPOW = 0
-var Mode = UNKNOWN
+var (
+	Board      [][]int = initBoard(GOBANSIZE)
+	Turn               = BLACK
+	BPOW               = 0
+	WPOW               = 0
+	Mode               = UNKNOWN
+	DOUBLE_3           = 0
+	BREAKING_5         = 0
+	TIMEOUT            = 0
+)
 
 const (
 	UNKNOWN         = -1

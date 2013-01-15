@@ -17,6 +17,21 @@ $("#turn").text("IDK");
 $("#score").text(score);
 $("#me").text(me);
 
+function sendRules() {
+  var dual3 = 0
+  var break5 = 0
+  var timeout = 0
+  
+  if($('#DOUBLE_3').attr('checked')) {
+    dual3 = "1";
+  }
+  if($('#BREAKING_5').attr('checked')) {
+    break5 = "1";
+  }
+  timeout = $('#TIMEOUT').val();
+  ws.send("RULES " + dual3 + " " + break5 + " " + timeout); 
+}
+
 function ConnectWS() {
 
   ws = new WebSocket("ws://" + host + ":1112/ws");
@@ -28,6 +43,7 @@ function ConnectWS() {
       ws.send("GETCOLOR");
     }
     ws.send("GETTURN");
+    sendRules();
   };
 
   ws.onmessage = function(e) {

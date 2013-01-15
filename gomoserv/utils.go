@@ -4,7 +4,13 @@ import (
 	"code.google.com/p/go.net/websocket"
 	"fmt"
 	"log"
+	"strconv"
 )
+
+func Atoi(st string) int {
+	ret, _ := strconv.Atoi(st)
+	return ret
+}
 
 func getClient(ws *websocket.Conn) Connection {
 	var connect Connection

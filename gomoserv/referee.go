@@ -50,6 +50,9 @@ func breakable_same(coord []int) bool {
 }
 
 func breakable(coord []int) bool {
+	if BREAKING_5 == 0 {
+		return false
+	}
 	if breakable_same(coord) {
 		return true
 	} else if breakable_opos(coord) {
@@ -340,6 +343,10 @@ func check_dual_three(coord []int, player int, sens int) bool {
 }
 
 func dual_three(coord []int, player int) bool {
+
+	if DOUBLE_3 == 0 {
+		return false
+	}
 
 	Board[coord[0]][coord[1]] = player
 
