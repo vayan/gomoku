@@ -71,6 +71,8 @@ func minimax(depth int, turn int, origin [][]int) {
 }
 
 func start_ai() string {
+	movehim = Move{Coord{-1, -1}, 0}
+	moveme = Move{Coord{-1, -1}, 0}
 	log.Print("== AI Start thinking ==")
 	minimax(1, Turn, duplicate_board(Board))
 	mov := choose_move()
