@@ -19,6 +19,7 @@ type Connection struct {
 }
 
 func send(buf string, c Connection) {
+	log.Printf("send : '%s'", buf)
 	if c.ws != nil {
 		ws_send(buf, c.ws)
 		return
@@ -31,7 +32,7 @@ func ws_send(buf string, ws *websocket.Conn) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Printf("send:%s\n", buf)
+
 }
 
 func ws_recv(ws *websocket.Conn) (string, int) {
@@ -51,7 +52,7 @@ func ws_recv(ws *websocket.Conn) (string, int) {
 		}
 		log.Println(err)
 	}
-	log.Printf("recv :%s\n", buf)
+	log.Printf("WS Receive : '%s'", buf)
 	return buf, erri
 }
 
@@ -91,7 +92,7 @@ func getFreeSlot() int {
 	return slotleft
 }
 
-func engine(msg_cl string, con Connection) {
+func engine(msg_cl string, con Connection) int {
 	buff := strings.Split(msg_cl, " ")
 
 	buf := buff[0]
@@ -107,15 +108,19 @@ func engine(msg_cl string, con Connection) {
 				Mode = PVP
 			}
 		}
-		return
+		return 1
 	}
 
 	//check avec le referee
-
 	switch buf {
 	case "reset":
+		for pl, _ := range players {
+			delete(players, pl)
+		}
+		players = make(map[Connection]int)
 		Board = initBoard(GOBANSIZE)
-		send("RESET", con)
+		return -1
+
 	//case "getturn":
 	//  send("turn "+getStringTurn(), ws)
 	//case "getme":
@@ -160,6 +165,7 @@ func engine(msg_cl string, con Connection) {
 		}
 
 	}
+	return 1
 }
 
 func HandleSocket(con net.Conn) {
@@ -178,8 +184,10 @@ func HandleSocket(con net.Conn) {
 			return
 		}
 		buff := string(data[0 : n-1])
-		log.Printf("Receive '%s'", buff)
-		engine(buff, sock_cli)
+		log.Printf("SKT Receive '%s'", buff)
+		if engine(buff, sock_cli) == -1 {
+			return
+		}
 		//con.Write(data)
 	}
 	//log.Println("Data send by client: " + response
@@ -197,6 +205,8 @@ func HandleWebSocket(ws *websocket.Conn) {
 		if erri == 1 {
 			return
 		}
-		engine(msg_cl, sock_cli)
+		if engine(msg_cl, sock_cli) == -1 {
+			return
+		}
 	}
 }

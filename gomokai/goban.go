@@ -18,6 +18,18 @@ const (
 	STONE_TO_Win    = 10
 )
 
+func duplicate_board() [][]int {
+	var board = make([][]int, 20)
+
+	for x := 0; x < 20; x++ {
+		board[x] = make([]int, 20)
+		for y := 0; y < 20; y++ {
+			board[x][y] = Board[x][y]
+		}
+	}
+	return (board)
+}
+
 func change_turn() {
 	if Turn == BLACK {
 		Turn = WHITE

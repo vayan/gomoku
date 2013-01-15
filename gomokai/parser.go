@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -25,7 +26,7 @@ func Rm(buff []string) {
 	AffBoard(20)
 }
 
-func parser(msg string) {
+func parser(msg string, con net.Conn) {
 	buff := strings.Split(msg, " ")
 	buf := buff[0]
 
@@ -41,7 +42,8 @@ func parser(msg string) {
 		log.Print("AI LOSE")
 		os.Exit(11)
 	case "YOURTURN":
-		start_ai()
+		msg := start_ai()
+		Send(msg, con)
 	case "RULES":
 	}
 }
