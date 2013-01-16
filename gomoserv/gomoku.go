@@ -57,6 +57,10 @@ func engine(msg_cl string, con Connection) int {
 
 	buf := buff[0]
 
+	if con.player_color == NONE {
+		return 1
+	}
+
 	//check le mode
 	if Mode == UNKNOWN {
 		if buf == "MODE" {
@@ -105,19 +109,27 @@ func engine(msg_cl string, con Connection) int {
 			mov, win, _ := referee(coord, con)
 			if win {
 				send_win(con, W_FIVEALIGN)
+				return -1
 			} else if mov == true {
 				buf = "ADD " + buff[1] + " " + buff[2]
 				for pl, _ := range players {
 					send(buf, pl)
 					if pl.player_color == Turn {
 						send("YOURTURN", pl)
-						if Mode == PVE && Turn == WHITE {
+						if Mode == PVE && Turn == WHITE && TIMEOUT > 0 {
 							go timeout_to_death()
 						}
 					}
 				}
 			} else {
-				buf = "error"
+				if Mode == PVE && con.player_color == WHITE {
+					for pl, _ := range players {
+						if pl.player_color == BLACK {
+							send_win(pl, W_RULEERR)
+							return -1
+						}
+					}
+				}
 			}
 			//send(buf, ws)
 			AffBoard(Board, GOBANSIZE)
