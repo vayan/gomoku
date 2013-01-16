@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	"math/rand"
+	"os"
 	"runtime"
 	"strconv"
 	"time"
@@ -42,10 +42,15 @@ func MaxParallelism() int {
 }
 
 func main() {
+	addr := "localhost:1113"
+
+	if len(os.Args) > 2 {
+		addr = os.Args[1] + ":" + os.Args[2]
+	}
+
 	runtime.GOMAXPROCS(MaxParallelism())
 	rand.Seed(time.Now().UTC().UnixNano())
-	log.Print("HI")
-	con := DialServ()
+	con := DialServ(addr)
 	go HandleRead(con)
 	Send("CONNECT CLIENT", con)
 	select {}

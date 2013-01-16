@@ -43,6 +43,7 @@ func all_move(board [][]int, turn int, depth int) int {
 	for x := 0; x < 20; x++ {
 		for y := 0; y < 20; y++ {
 			//stock les move interdit en parrale et compare apres
+			// evite de scan toute les cases
 			if can_move(Coord{x, y}, board, turn) {
 				if depth > 0 {
 					next_board := duplicate_board(board)

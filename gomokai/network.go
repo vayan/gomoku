@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"os"
 	"strings"
 )
 
@@ -21,7 +22,7 @@ func HandleRead(con net.Conn) {
 		n, err := con.Read(data)
 		if err != nil {
 			log.Println(err)
-			break
+			os.Exit(11)
 		}
 		buff := string(data[0 : n-1])
 
@@ -34,11 +35,12 @@ func HandleRead(con net.Conn) {
 	}
 }
 
-func DialServ() (con net.Conn) {
-	con, error := net.Dial("tcp", "localhost:1113")
+func DialServ(addr string) (con net.Conn) {
+	con, error := net.Dial("tcp", addr)
 	if error != nil {
 		log.Printf("Host not found: %s\n", error)
+		os.Exit(11)
 	}
-	log.Println("Connected to server")
+	log.Printf("Connected to server at %s", addr)
 	return con
 }

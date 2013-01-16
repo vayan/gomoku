@@ -81,12 +81,6 @@ func engine(msg_cl string, con Connection) int {
 		Board = initBoard(GOBANSIZE)
 		return -1
 
-	//case "getturn":
-	//  send("turn "+getStringTurn(), ws)
-	//case "getme":
-	//send("me You are "+getStringPl(getClient(ws).player_color), ws)
-	//case "getscore":
-	//send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
 	case "RULES":
 		DOUBLE_3 = Atoi(buff[1])
 		BREAKING_5 = Atoi(buff[2])

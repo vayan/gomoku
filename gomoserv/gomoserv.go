@@ -5,6 +5,8 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -32,8 +34,16 @@ func main() {
 	log.Print("\n\n========GEN BOARD========\n")
 	AffBoard(Board, GOBANSIZE)
 
-	lis, _ := net.Listen("tcp", ":1113")
-	log.Print("== Listen socket 1113 ==")
+	HTTPport := "1112"
+	SOCKport := "1113"
+	if len(os.Args) > 1 {
+		port := Atoi(os.Args[1])
+		HTTPport = strconv.Itoa(port)
+		SOCKport = strconv.Itoa(port + 1)
+	}
+
+	lis, _ := net.Listen("tcp", ":"+SOCKport)
+	log.Printf("== Listen socket %s ==", SOCKport)
 
 	go func() {
 		for {
@@ -46,14 +56,14 @@ func main() {
 	}()
 
 	go func() {
-		log.Print("== Start gomoku web server on 1112 ==")
+		log.Printf("== Start gomoku web server on %s ==", HTTPport)
 		http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 		http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("img"))))
 		http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))
 		http.Handle("/ws", websocket.Handler(HandleWebSocket))
 		http.HandleFunc("/", IndexHandler)
 
-		http.ListenAndServe(":1112", nil)
+		http.ListenAndServe(":"+HTTPport, nil)
 	}()
 
 	select {}
