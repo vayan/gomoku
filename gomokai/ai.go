@@ -78,7 +78,7 @@ func start_ai() string {
 	moveme = Move{Coord{-1, -1}, 0}
 	log.Print("== AI Start thinking ==")
 	t0 := time.Now()
-	minimax(2, Turn, duplicate_board(Board))
+	minimax(1, Turn, duplicate_board(Board))
 	mov := choose_move()
 	t1 := time.Now()
 	log.Printf("The AI took %v to think.\n", t1.Sub(t0))
