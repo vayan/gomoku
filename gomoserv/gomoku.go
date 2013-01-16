@@ -105,6 +105,7 @@ func engine(msg_cl string, con Connection) int {
 			}
 		}
 	case "PLAY":
+		tm++
 		coord := []string{buff[1], buff[2]}
 		if len(coord) > 1 {
 			mov, win, _ := referee(coord, con)
@@ -117,7 +118,6 @@ func engine(msg_cl string, con Connection) int {
 					if pl.player_color == Turn {
 						send("YOURTURN", pl)
 						if Mode == PVE && Turn == WHITE {
-							tm++
 							go timeout_to_death()
 						}
 					}

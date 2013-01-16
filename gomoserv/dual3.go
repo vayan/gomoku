@@ -1,9 +1,5 @@
 package main
 
-import (
-	"log"
-)
-
 func check_dual_three(coord []int, player int, sens int) bool {
 	x := coord[0]
 	y := coord[1]
@@ -25,10 +21,10 @@ func check_dual_three(coord []int, player int, sens int) bool {
 	}
 	BoardVisited[x][y] = 1
 	if sens != 1 && sens != 2 {
-		log.Print("=====Check les sens _\n")
+
 		for i := y; (i >= 0) && Board[x][i] == Board[x][y]; i-- {
 			if BoardVisited[x][i] == 0 {
-				log.Print("==Check first y-\n")
+
 				nb, _ := check_three_free([]int{x, i}, player, sens)
 				if nb > limit {
 					nbr++
@@ -38,7 +34,7 @@ func check_dual_three(coord []int, player int, sens int) bool {
 		}
 		for i := y; (i <= 19) && Board[x][i] == Board[x][y]; i++ {
 			if BoardVisited[x][i] == 0 {
-				log.Print("==Check first y+\n")
+
 				nb, _ := check_three_free([]int{x, i}, player, sens)
 				if nb > limit {
 					nbr++
@@ -48,10 +44,10 @@ func check_dual_three(coord []int, player int, sens int) bool {
 		}
 	}
 	if sens != 3 && sens != 4 {
-		log.Print("=====Check les sens |\n")
+
 		for i := x; (i <= 19) && Board[i][y] == Board[x][y]; i++ {
 			if BoardVisited[i][y] == 0 {
-				log.Print("==Check first x+\n")
+
 				nb, _ := check_three_free([]int{i, y}, player, sens)
 				if nb > limit {
 					nbr++
@@ -61,7 +57,7 @@ func check_dual_three(coord []int, player int, sens int) bool {
 		}
 		for i := x; (i >= 0) && Board[i][y] == Board[x][y]; i-- {
 			if BoardVisited[i][y] == 0 {
-				log.Print("==Check first x-\n")
+
 				nb, _ := check_three_free([]int{i, y}, player, sens)
 				if nb > limit {
 					nbr++
@@ -71,10 +67,10 @@ func check_dual_three(coord []int, player int, sens int) bool {
 		}
 	}
 	if sens != 5 && sens != 6 {
-		log.Print("=====Check les sens \\ \n")
+
 		for x, y = coord[0], coord[1]; x >= 0 && y >= 0 && Board[x][y] == Board[xori][yori]; {
 			if BoardVisited[x][y] == 0 {
-				log.Print("==Check first x- y-\n")
+
 				nb, _ := check_three_free([]int{x, y}, player, sens)
 				if nb > limit {
 					nbr++
@@ -87,7 +83,7 @@ func check_dual_three(coord []int, player int, sens int) bool {
 
 		for x, y = coord[0], coord[1]; x <= 19 && y <= 19 && Board[x][y] == Board[xori][yori]; {
 			if BoardVisited[x][y] == 0 {
-				log.Print("==Check first x+ y+\n")
+
 				nb, _ := check_three_free([]int{x, y}, player, sens)
 				if nb > limit {
 					nbr++
@@ -100,10 +96,10 @@ func check_dual_three(coord []int, player int, sens int) bool {
 	}
 
 	if sens != 7 && sens != 8 {
-		log.Print("=====Check les sens / \n")
+
 		for x, y = coord[0], coord[1]; x >= 0 && y <= 19 && Board[x][y] == Board[xori][yori]; {
 			if BoardVisited[x][y] == 0 {
-				log.Print("==Check first x- y+\n")
+
 				nb, _ := check_three_free([]int{x, y}, player, sens)
 				if nb > limit {
 					nbr++
@@ -115,7 +111,7 @@ func check_dual_three(coord []int, player int, sens int) bool {
 		}
 		for x, y = coord[0], coord[1]; x <= 19 && y >= 0 && Board[x][y] == Board[xori][yori]; {
 			if BoardVisited[x][y] == 0 {
-				log.Print("==Check first x+ y-\n")
+
 				nb, _ := check_three_free([]int{x, y}, player, sens)
 				if nb > limit {
 					nbr++
@@ -126,7 +122,7 @@ func check_dual_three(coord []int, player int, sens int) bool {
 			y--
 		}
 	}
-	log.Printf("\nTotal find %d\n", nbr)
+
 	if nbr >= 1 {
 		return true
 	}
@@ -155,7 +151,7 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 				nb_free_hori++
 			}
 			if stone == limit && i-1 >= 0 && yori+1 <= 19 && Board[x][yori+1] == NONE && Board[x][i-1] == NONE {
-				log.Print("Find three y--\n")
+
 				nbr++
 				return 1, 1
 			}
@@ -167,14 +163,14 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 				nb_free_hori++
 			}
 			if stone == limit && i+1 <= 19 && yori-1 >= 0 && Board[x][yori-1] == NONE && Board[x][i+1] == NONE {
-				log.Print("Find three y++\n")
+
 				nbr++
 				return 2, 1
 			}
 			v++
 		}
 		if nb_free_hori == limit && tmp == nbr {
-			log.Print("Find three _\n")
+
 			return 2, 1
 		}
 	}
@@ -187,7 +183,7 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 				nb_free_verti++
 			}
 			if stone == limit && i+1 <= 19 && xori-1 >= 0 && Board[xori-1][y] == NONE && Board[i+1][y] == NONE {
-				log.Print("Find three x++\n")
+
 				nbr++
 				return 3, 1
 			}
@@ -200,14 +196,14 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 				nb_free_verti++
 			}
 			if stone == limit && i-1 >= 0 && xori+1 <= 19 && Board[xori+1][y] == NONE && Board[i-1][y] == NONE {
-				log.Print("Find three x--\n")
+
 				nbr++
 				return 4, 1
 			}
 			v++
 		}
 		if nb_free_verti == limit && tmp == nbr {
-			log.Print("Find three |\n")
+
 			return 4, 1
 		}
 	}
@@ -219,7 +215,7 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 				nb_free_slash++
 			}
 			if stone == limit && x-1 >= 0 && y-1 >= 0 && xori+1 <= 19 && yori+1 <= 19 && Board[xori+1][yori+1] == NONE && Board[x-1][y-1] == NONE {
-				log.Print("Find three x- y-\n")
+
 				nbr++
 				return 5, 1
 			}
@@ -233,7 +229,7 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 				nb_free_slash++
 			}
 			if stone == limit && x+1 <= 19 && y+1 <= 19 && xori-1 >= 0 && yori-1 >= 0 && Board[xori-1][yori-1] == NONE && Board[x+1][y+1] == NONE {
-				log.Print("Find three x+ y+\n")
+
 				nbr++
 				return 6, 1
 			}
@@ -242,7 +238,7 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 			y++
 		}
 		if nb_free_slash == limit && tmp == nbr {
-			log.Print("Find three \\ \n")
+
 			return 6, 1
 		}
 	}
@@ -254,7 +250,7 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 				nb_free_anti++
 			}
 			if stone == limit && x-1 >= 0 && y+1 <= 19 && xori+1 <= 19 && yori-1 >= 0 && Board[xori+1][yori-1] == NONE && Board[x-1][y+1] == NONE {
-				log.Print("Find three x- y+\n")
+
 				nbr++
 				return 7, 1
 			}
@@ -269,7 +265,7 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 				nb_free_anti++
 			}
 			if stone == limit && x+1 <= 19 && y-1 >= 0 && xori-1 >= 0 && yori+1 <= 19 && Board[xori-1][yori+1] == NONE && Board[x+1][y-1] == NONE {
-				log.Print("Find three x+ y-\n")
+
 				nbr++
 				return 8, 1
 			}
@@ -278,7 +274,7 @@ func check_three_free(coord []int, player int, sens int) (int, int) {
 			y--
 		}
 		if nb_free_anti == limit && tmp == nbr {
-			log.Print("Find three / \n")
+
 			return 8, 1
 		}
 	}
@@ -295,7 +291,6 @@ func dual_three(coord []int, player int) bool {
 
 	sens, nbr := check_three_free(coord, player, 0)
 	if nbr > 0 {
-		log.Printf("==========Creation d'un double trois on check si yen a dautre sauf dans le sens %d\n", -1)
 		if check_dual_three(coord, player, sens) == true {
 			Board[coord[0]][coord[1]] = NONE
 			return true

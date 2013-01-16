@@ -25,6 +25,7 @@ func timeout_to_death() {
 			return
 		}
 	}
+	tm++
 }
 
 func main() {

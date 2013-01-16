@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"strings"
 )
 
 func Send(buff string, con net.Conn) {
@@ -23,8 +24,13 @@ func HandleRead(con net.Conn) {
 			break
 		}
 		buff := string(data[0 : n-1])
-		log.Printf("Receive '%s'", buff)
-		parser(buff, con)
+
+		all_msg := strings.Split(buff, "\n")
+
+		for _, msg := range all_msg {
+			log.Printf("Receive '%s'", msg)
+			parser(msg, con)
+		}
 	}
 }
 
