@@ -5,6 +5,29 @@ import (
 	"strconv"
 )
 
+func get_string_reason(reason int) string {
+	switch reason {
+	case W_CAPTURE:
+		return "CAPTURE"
+	case W_FIVEALIGN:
+		return "FIVEALIGN"
+	case W_RULEERR:
+		return "RULEERR"
+	case W_TIMEOUT:
+		return "TIMEOUT"
+	}
+	return "RULEERR"
+}
+
+func send_win(winner Connection, reason int) {
+	send("WIN "+get_string_reason(reason), winner)
+	for pl, _ := range players {
+		if pl != winner {
+			send("LOSE "+get_string_reason(reason), pl)
+		}
+	}
+}
+
 func send(buf string, c Connection) {
 	log.Printf("send : '%s'", buf)
 	if c.ws != nil {

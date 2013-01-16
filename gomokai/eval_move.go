@@ -65,7 +65,7 @@ func can_move(move Coord, board [][]int, turn int) bool {
 	if breakable(move, board) {
 		return false
 	}
-	if dual_three(move, board) {
+	if dual_three(move, turn, board) {
 		return false
 	}
 

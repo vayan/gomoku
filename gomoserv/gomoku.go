@@ -18,6 +18,7 @@ var (
 	BREAKING_5         = 0
 	TIMEOUT            = 0
 	players            = make(map[Connection]int)
+	tm                 = 0
 )
 
 const (
@@ -31,6 +32,10 @@ const (
 	GOBANSIZE       = 20
 	NB_ALIGN_TO_WIN = 5
 	STONE_TO_Win    = 10
+	W_CAPTURE       = 1
+	W_FIVEALIGN     = 2
+	W_RULEERR       = 3
+	W_TIMEOUT       = 4
 )
 
 type Page struct {
@@ -104,12 +109,7 @@ func engine(msg_cl string, con Connection) int {
 		if len(coord) > 1 {
 			mov, win, _ := referee(coord, con)
 			if win {
-				send("WIN FIVEALIGN", con)
-				for pl, _ := range players {
-					if pl != con {
-						send("LOSE FIVEALIGN", pl)
-					}
-				}
+				send_win(con, W_FIVEALIGN)
 			} else if mov == true {
 				buf = "ADD " + buff[1] + " " + buff[2]
 				for pl, _ := range players {
@@ -117,7 +117,8 @@ func engine(msg_cl string, con Connection) int {
 					if pl.player_color == Turn {
 						send("YOURTURN", pl)
 						if Mode == PVE && Turn == WHITE {
-							go timeout_to_death(pl)
+							tm++
+							go timeout_to_death()
 						}
 					}
 				}

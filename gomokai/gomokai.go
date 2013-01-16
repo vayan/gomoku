@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"math/rand"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -31,7 +32,17 @@ func get_opos_turn(turn int) int {
 	return BLACK
 }
 
+func MaxParallelism() int {
+	maxProcs := runtime.GOMAXPROCS(0)
+	numCPU := runtime.NumCPU()
+	if maxProcs < numCPU {
+		return maxProcs
+	}
+	return numCPU
+}
+
 func main() {
+	runtime.GOMAXPROCS(MaxParallelism())
 	rand.Seed(time.Now().UTC().UnixNano())
 	log.Print("HI")
 	con := DialServ()

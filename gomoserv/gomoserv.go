@@ -8,12 +8,22 @@ import (
 	"time"
 )
 
-func timeout_to_death(pl Connection) {
-	log.Print("START TIMEOUT AI")
+func timeout_to_death() {
+	log.Printf("START TIMEOUT NB %d AI", tm)
+	id := tm
 	go func() { select {} }()
 	select {
 	case <-time.After(time.Duration(TIMEOUT) * time.Millisecond):
-		log.Print("AI TIMEOUT")
+		if Turn == WHITE && id == tm {
+			log.Printf("AI TIMEOUT ON %d (%d)", id, tm)
+			for pl, _ := range players {
+				if pl.player_color == BLACK {
+					send_win(pl, W_TIMEOUT)
+					return
+				}
+			}
+			return
+		}
 	}
 }
 
