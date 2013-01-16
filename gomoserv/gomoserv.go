@@ -5,7 +5,17 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 )
+
+func timeout_to_death(pl Connection) {
+	log.Print("START TIMEOUT AI")
+	go func() { select {} }()
+	select {
+	case <-time.After(time.Duration(TIMEOUT) * time.Millisecond):
+		log.Print("AI TIMEOUT")
+	}
+}
 
 func main() {
 	log.Print("\n\n========GEN BOARD========\n")

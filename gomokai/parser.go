@@ -45,5 +45,8 @@ func parser(msg string, con net.Conn) {
 		msg := start_ai()
 		Send(msg, con)
 	case "RULES":
+		DOUBLE_3 = Atoi(buff[1])
+		BREAKING_5 = Atoi(buff[2])
+		TIMEOUT = Atoi(buff[3])
 	}
 }

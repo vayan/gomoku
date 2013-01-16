@@ -3,8 +3,14 @@ package main
 import (
 	"log"
 	"math/rand"
+	"strconv"
 	"time"
 )
+
+func Atoi(st string) int {
+	ret, _ := strconv.Atoi(st)
+	return ret
+}
 
 func randInt(min int, max int) int {
 	return min + rand.Intn(max-min)

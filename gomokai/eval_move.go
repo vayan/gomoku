@@ -1,8 +1,6 @@
 package main
 
-import (
-	"log"
-)
+import ()
 
 func connected(move Coord, board [][]int, type_conn int) (int, int, int, int) {
 	var (
@@ -64,6 +62,13 @@ func can_move(move Coord, board [][]int, turn int) bool {
 		//log.Print("Already stone here")
 		return false
 	}
+	if breakable(move, board) {
+		return false
+	}
+	if dual_three(move, board) {
+		return false
+	}
+
 	return true
 }
 

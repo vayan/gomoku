@@ -1,8 +1,11 @@
 package main
 
 import (
+	"code.google.com/p/go.net/websocket"
 	"html/template"
-	"strconv"
+	"log"
+	"net"
+	"strings"
 )
 
 var (
@@ -14,6 +17,7 @@ var (
 	DOUBLE_3           = 0
 	BREAKING_5         = 0
 	TIMEOUT            = 0
+	players            = make(map[Connection]int)
 )
 
 const (
@@ -35,37 +39,95 @@ type Page struct {
 	BoardClick template.HTML
 }
 
-func capture_win() {
-
+type Connection struct {
+	ws           *websocket.Conn
+	s            net.Conn
+	player_color int
+	is_ia        bool
+	clientip     string
 }
 
-func send_capture(pow [][]int, c Connection) {
-	var buff string
-	flag := 0
+func engine(msg_cl string, con Connection) int {
+	buff := strings.Split(msg_cl, " ")
 
-	if pow != nil {
-		for key := range pow {
-			if flag == 0 {
-				buff = "REM "
-			}
-			if pow[key] != nil {
-				buff += strconv.Itoa(pow[key][0]) + " " + strconv.Itoa(pow[key][1]) + " "
-				if Board[pow[key][0]][pow[key][1]] == BLACK {
-					WPOW += 1
-				} else {
-					BPOW += 1
-				}
-				Board[pow[key][0]][pow[key][1]] = NONE
-				if flag == 1 {
-					flag = 0
-					for pl, _ := range players {
-						send(buff, pl)
-					}
-					continue
-				}
-				flag++
-			}
+	buf := buff[0]
 
+	//check le mode
+	if Mode == UNKNOWN {
+		if buf == "MODE" {
+			if buff[1] == "pve" {
+				Mode = PVE
+				con.player_color = BLACK
+			}
+			if buff[1] == "pvp" {
+				Mode = PVP
+			}
 		}
+		return 1
 	}
+
+	//check avec le referee
+	switch buf {
+	case "reset":
+		for pl, _ := range players {
+			delete(players, pl)
+		}
+		players = make(map[Connection]int)
+		Board = initBoard(GOBANSIZE)
+		return -1
+
+	//case "getturn":
+	//  send("turn "+getStringTurn(), ws)
+	//case "getme":
+	//send("me You are "+getStringPl(getClient(ws).player_color), ws)
+	//case "getscore":
+	//send("score, Black : "+strconv.Itoa(BPOW)+" | White : "+strconv.Itoa(WPOW), ws)
+	case "RULES":
+		DOUBLE_3 = Atoi(buff[1])
+		BREAKING_5 = Atoi(buff[2])
+		TIMEOUT = Atoi(buff[3])
+	case "GETCOLOR":
+		send("COLOR "+getStringPl(con.player_color), con)
+	case "GETTURN":
+		send("TURN "+getStringTurn(), con)
+	case "CONNECT":
+		if buff[1] == "CLIENT" {
+			log.Print("IA Connected")
+			con.is_ia = true
+			con.player_color = WHITE
+			if Turn == WHITE {
+				send("YOURTURN", con)
+			}
+		}
+	case "PLAY":
+		coord := []string{buff[1], buff[2]}
+		if len(coord) > 1 {
+			mov, win, _ := referee(coord, con)
+			if win {
+				send("WIN FIVEALIGN", con)
+				for pl, _ := range players {
+					if pl != con {
+						send("LOSE FIVEALIGN", pl)
+					}
+				}
+			} else if mov == true {
+				buf = "ADD " + buff[1] + " " + buff[2]
+				for pl, _ := range players {
+					send(buf, pl)
+					if pl.player_color == Turn {
+						send("YOURTURN", pl)
+						if Mode == PVE && Turn == WHITE {
+							go timeout_to_death(pl)
+						}
+					}
+				}
+			} else {
+				buf = "error"
+			}
+			//send(buf, ws)
+			AffBoard(Board, GOBANSIZE)
+		}
+
+	}
+	return 1
 }

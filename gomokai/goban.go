@@ -5,9 +5,12 @@ import (
 )
 
 var (
-	Board [][]int = initBoard(20)
-	Pris          = 0
-	Turn          = BLACK
+	Board      [][]int = initBoard(20)
+	Pris               = 0
+	Turn               = BLACK
+	DOUBLE_3           = 0
+	BREAKING_5         = 0
+	TIMEOUT            = 0
 )
 
 const (

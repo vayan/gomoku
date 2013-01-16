@@ -7,6 +7,53 @@ import (
 	"strconv"
 )
 
+func GenBoard(size int, stone bool) string {
+	board := ""
+	color := ""
+
+	for x := 0; x < size; x++ {
+		board += "<tr>"
+		for y := 0; y < size; y++ {
+			if Board[x][y] == BLACK {
+				color = "bgblack"
+			} else if Board[x][y] == WHITE {
+				color = "bgwhite"
+			} else {
+				color = ""
+			}
+			if stone == true {
+				board += " <td><div class='" + color + " stone pos" + strconv.Itoa(x) + "y" + strconv.Itoa(y) + "'>" + strconv.Itoa(x) + " " + strconv.Itoa(y) + "</div></td> "
+			} else {
+				board += " <td></td> "
+			}
+		}
+		board += "</tr>"
+	}
+	return board
+}
+
+func getFreeSlot() int {
+	slotleft, black, white := NONE, 0, 0
+
+	for pl, _ := range players {
+		if pl.player_color == BLACK {
+			black = 1
+		}
+		if pl.player_color == WHITE {
+			white = 1
+		}
+	}
+
+	if black == 0 {
+		slotleft = BLACK
+	} else if white == 0 && black == 1 {
+		slotleft = WHITE
+	} else if black == 1 && white == 1 {
+		slotleft = NONE
+	}
+	return slotleft
+}
+
 func Atoi(st string) int {
 	ret, _ := strconv.Atoi(st)
 	return ret
