@@ -19,6 +19,7 @@ var (
 	TIMEOUT            = 0
 	players            = make(map[Connection]int)
 	tm                 = 0
+	RULES_ST           = "RULES 0 0 0"
 )
 
 const (
@@ -89,6 +90,10 @@ func engine(msg_cl string, con Connection) int {
 		DOUBLE_3 = Atoi(buff[1])
 		BREAKING_5 = Atoi(buff[2])
 		TIMEOUT = Atoi(buff[3])
+		RULES_ST = msg_cl
+		for pl, _ := range players {
+			send(msg_cl, pl)
+		}
 	case "GETCOLOR":
 		send("COLOR "+getStringPl(con.player_color), con)
 	case "GETTURN":
@@ -98,6 +103,7 @@ func engine(msg_cl string, con Connection) int {
 			log.Print("IA Connected")
 			con.is_ia = true
 			con.player_color = WHITE
+			send(RULES_ST, con)
 			if Turn == WHITE {
 				send("YOURTURN", con)
 			}

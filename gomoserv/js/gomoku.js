@@ -4,12 +4,6 @@ var turn = "null";
 var score = "Black : 0 | White : 0";
 var me = "You are : unknown";
 var color = "null";
-
-if(ws != null) {
-  ws.close();
-  ws = null;
-}
-
 var host = window.location.hostname;
 
 //init page
@@ -19,7 +13,7 @@ $("#me").text(me);
 
 function getURLParameter(name) {
   return decodeURI(
-  (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search) || [, null])[1]);
+  (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search) || [null])[1]);
 }
 
 $(document).ready(function() {
@@ -33,9 +27,9 @@ $(document).ready(function() {
 });
 
 function sendRules() {
-  var dual3 = 0
-  var break5 = 0
-  var timeout = 0
+  var dual3 = 0;
+  var break5 = 0;
+  var timeout = 0;
 
   if($('#DOUBLE_3').attr('checked')) {
     dual3 = "1";
@@ -98,10 +92,7 @@ function ConnectWS() {
         $('.pos' + data[3] + 'y' + data[4]).removeClass("bgblack");
         $('.pos' + data[3] + 'y' + data[4]).removeClass("bgwhite");
       }
-      // // update score
-      // else if(data[0] == "score") {
-      //   $("#score").text(data[1]);
-      // } 
+
       else if(data[0] == "YOURTURN") {
         $("#turn").text("YOUR TURN");
       } else if(data[0] == "ADD") {
@@ -131,7 +122,7 @@ function ConnectWS() {
 //click gamemode
 $(".selectpvp").click(function() {
   ConnectWS();
-  mode = "pvp"
+  mode = "pvp";
   $("#victory").hide();
   $("#menu").slideUp();
   $("#game").show();
@@ -140,7 +131,7 @@ $(".selectpvp").click(function() {
 $(".selectpve").click(function() {
   ConnectWS();
   color = "black";
-  turn = "black"
+  turn = "black";
   mode = "pve";
   $("#victory").hide();
   $("#menu").slideUp();

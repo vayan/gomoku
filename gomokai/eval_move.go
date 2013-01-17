@@ -56,19 +56,22 @@ func connected(move Coord, board [][]int, type_conn int) (int, int, int, int) {
 	return hori, verti, diagl, diagr
 }
 
-func can_move(move Coord, board [][]int, turn int) bool {
+func can_move(move Coord, board [][]int, turn int, depth int, or_depth int) bool {
 	//log.Print("Test if can put stone here")
 	if board[move.x][move.y] != NONE {
 		//log.Print("Already stone here")
 		return false
 	}
+	if depth != or_depth && eval_move(move, board, turn) <= 6 {
+		return false
+	}
+
 	if breakable(move, board) {
 		return false
 	}
 	if dual_three(move, turn, board) {
 		return false
 	}
-
 	return true
 }
 
