@@ -79,7 +79,12 @@ func eval_connection(move Coord, board [][]int, turn int) int {
 	//check connect friend
 	fhori, fverti, fdiagl, fdiagr := connected(move, board, turn)
 
-	return fhori + fverti + fdiagl + fdiagr
+	ret := fhori + fverti + fdiagl + fdiagr
+
+	if fhori > NB_ALIGN_TO_WIN || fverti > NB_ALIGN_TO_WIN || fdiagl >= NB_ALIGN_TO_WIN || fdiagr >= NB_ALIGN_TO_WIN {
+		return ret + 100
+	}
+	return ret
 }
 
 func eval_move(move Coord, board [][]int, turn int) int {
