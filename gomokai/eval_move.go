@@ -42,12 +42,12 @@ func connected(move Coord, board [][]int, type_conn int) (int, int, int, int) {
 	}
 
 	//check /
-	for x, y = move.x, move.y; x >= 0 && y <= 19 && Board[x][y] == type_conn; {
+	for x, y = move.x, move.y; x >= 0 && y <= 19 && board[x][y] == type_conn; {
 		diagr++
 		x--
 		y++
 	}
-	for x, y = move.x, move.y; x <= 19 && y >= 0 && Board[x][y] == type_conn; {
+	for x, y = move.x, move.y; x <= 19 && y >= 0 && board[x][y] == type_conn; {
 		diagr++
 		x++
 		y--
@@ -81,9 +81,16 @@ func eval_connection(move Coord, board [][]int, turn int) int {
 
 	ret := fhori + fverti + fdiagl + fdiagr
 
-	if fhori > NB_ALIGN_TO_WIN || fverti > NB_ALIGN_TO_WIN || fdiagl >= NB_ALIGN_TO_WIN || fdiagr >= NB_ALIGN_TO_WIN {
+	//if move.x == 5 && move.y == 1 {
+	//log.Printf("pour le coup x %d y %d / %d %d %d %d ", move.x, move.y, fhori, fverti, fdiagl, fdiagr)
+	//}
+	if fhori >= NB_ALIGN_TO_WIN || fverti >= NB_ALIGN_TO_WIN || fdiagl >= NB_ALIGN_TO_WIN || fdiagr >= NB_ALIGN_TO_WIN {
 		return ret + 100
 	}
+	//if (fdiagr >= fhori && fdiagr >= fverti && fdiagr >= fdiagl) && turn == BLACK {
+
+	//	return ret + 400
+	//}
 	return ret
 }
 

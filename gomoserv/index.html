@@ -12,16 +12,12 @@
       <input type="button" class="selectpvp" value="Player vs. Player" />
       <input type="button" class="selectpve" value="Player vs.  IA" />
       <div id="victory"></div>
-         <div id="mode">
-        <input type="checkbox" value="DOUBLE_3" id="DOUBLE_3" /> <label for="DOUBLE_3">Double 3</label>
-        <input type="checkbox" value="BREAKING_5" id="BREAKING_5"/><label for="BREAKING_5">Breaking 5</label> <br />
-        <label for="TIMEOUT">Timeout value (0 = no timeout) : </label> <input type="text" value="0" id="TIMEOUT" />
-      </div>
+        
     </div>
 
     <div id="game">
       <div id="head">
-        <input type="button" id="reset" value="Restart" /> <span id="turn"></span><span id="me"></span><span id="score"></span>
+         <span id="turn"></span><span id="me"></span><span id="score"></span>
       </div>
       <table class="boardclic">
         {{.BoardClick}}
@@ -30,6 +26,21 @@
         {{.Board}}
       </table>    
     </div>
+  </div>
+  <div class="settingmenu">
+     <div id="mode">
+      <span class="formi">
+        <label for="DOUBLE_3">Double 3 :</label><input type="checkbox" value="DOUBLE_3" id="DOUBLE_3" /><br />
+        <label for="BREAKING_5">Breaking 5 :</label><input type="checkbox" value="BREAKING_5" id="BREAKING_5"/> <br />
+        <label for="TIMEOUT">Timeout : </label> <input type="text" value="0" id="TIMEOUT" /><br />
+        <p class="infoconnect">Not Connected</p>
+      </span >
+        <input type="button" value="Send Rules" id="sendrules" disabled="disabled" />
+        <input type="button" id="reset" value="Restart" disabled="disabled" />
+      </div>
+      <div class="settingmenuswitch">
+        <p class="rotate">Settings</p>
+      </div >
   </div>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> 
   <script src="js/gomoku.js"></script> 

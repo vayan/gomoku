@@ -18,12 +18,12 @@ function getURLParameter(name) {
 
 $(document).ready(function() {
   var res = getURLParameter("win");
-  console.log(res);
   if(res == "1") {
     $("#victory").text("YOU WON").show(300);
   } else if(res == "2") {
     $("#victory").text("YOU LOSE").show(300);
   }
+   $("#mode").hide(200);
 });
 
 function sendRules() {
@@ -52,7 +52,10 @@ function ConnectWS() {
       ws.send("GETCOLOR");
     }
     ws.send("GETTURN");
-    sendRules();
+    $("#sendrules").removeAttr("disabled");
+     $("#reset").removeAttr("disabled");
+    $(".infoconnect").css("color", "green");
+    $(".infoconnect").html("Connected");
   };
 
   ws.onmessage = function(e) {
@@ -115,6 +118,8 @@ function ConnectWS() {
 
   ws.onclose = function(e) {
     console.log("Disconnected from server");
+    $(".infoconnect").css("color", "red");
+    $(".infoconnect").html("Disconnected ;(");
   };
 
 }
@@ -138,6 +143,19 @@ $(".selectpve").click(function() {
   $("#game").show();
 });
 
+//togglesetting 
+
+$(".settingmenuswitch").click(function() {
+  if($('#mode').css('display') == "none" ) {
+    $("#mode").show(200);
+  } else {
+    $("#mode").hide(200);
+  }
+});
+
+$("#sendrules").click(function() {
+   sendRules();
+});
 
 //reset all game
 $("#reset").click(function() {
