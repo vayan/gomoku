@@ -12,7 +12,7 @@ func Send(buff string, con net.Conn) {
 	if error != nil {
 		log.Printf("Error sending data: %s, in: %d\n", error, in)
 	}
-	log.Printf("Sending : '%s'", buff)
+	//log.Printf("Sending : '%s'", buff)
 }
 
 func HandleRead(con net.Conn) {
@@ -29,7 +29,7 @@ func HandleRead(con net.Conn) {
 		all_msg := strings.Split(buff, "\n")
 
 		for _, msg := range all_msg {
-			log.Printf("Receive '%s'", msg)
+			//log.Printf("Receive '%s'", msg)
 			parser(msg, con)
 		}
 	}

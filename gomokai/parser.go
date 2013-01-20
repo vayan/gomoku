@@ -13,7 +13,7 @@ func Add(buff []string) {
 	y, _ := strconv.Atoi(buff[2])
 	addStone(x, y, Turn)
 	change_turn()
-	AffBoard(20)
+	//AffBoard(20)
 }
 
 func Rm(buff []string) {
@@ -23,7 +23,7 @@ func Rm(buff []string) {
 	x2, _ := strconv.Atoi(buff[3])
 	y2, _ := strconv.Atoi(buff[4])
 	rmStone(x2, y2)
-	AffBoard(20)
+	//AffBoard(20)
 }
 
 func parser(msg string, con net.Conn) {

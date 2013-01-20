@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
-	"time"
 )
 
 var (
@@ -68,7 +66,7 @@ func walk_in_tree(tree Tree, coo Coord, not int) (Tree, Coord, int) {
 }
 
 func choose_move() Coord {
-	log.Printf("Note : Black %d White %d", movehim.note, moveme.note)
+	//log.Printf("Note : Black %d White %d", movehim.note, moveme.note)
 	if movehim.note >= moveme.note {
 		return movehim.coo
 	}
@@ -139,24 +137,24 @@ func start_ai() string {
 	movehim = Move{Coord{-1, -1}, 0}
 	moveme = Move{Coord{-1, -1}, 0}
 
-	log.Print("== AI Start thinking ==")
+	//log.Print("== AI Start thinking ==")
 
-	log.Print("AI trying all moves")
-	t0 := time.Now()
+	//log.Print("AI trying all moves")
+	//t0 := time.Now()
 	tree := minimax(duplicate_board(Board), Turn, depth, depth, Coord{0, 0}, speed)
-	t1 := time.Now()
-	log.Printf("The AI took %v to check all move.....", t1.Sub(t0))
+	//t1 := time.Now()
+	//log.Printf("The AI took %v to check all move.....", t1.Sub(t0))
 
-	log.Print("Start choosing from tree")
-	t0 = time.Now()
+	//log.Print("Start choosing from tree")
+	//t0 = time.Now()
 	if speed > 1 {
 		_, mov, _ = walk_in_tree(tree, Coord{0, 0}, 0)
 	} else {
 		mov = choose_move()
 	}
-	t1 = time.Now()
-	log.Printf("The AI took %v to choose one.....", t1.Sub(t0))
+	//t1 = time.Now()
+	//log.Printf("The AI took %v to choose one.....", t1.Sub(t0))
 
-	aff_score(tree)
+	//aff_score(tree)
 	return "PLAY " + strconv.Itoa(mov.x) + " " + strconv.Itoa(mov.y)
 }

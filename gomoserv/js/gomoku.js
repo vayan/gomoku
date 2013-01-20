@@ -2,6 +2,8 @@ var ws;
 var mode;
 var turn = "null";
 var score = "Black : 0 | White : 0";
+var scoreb = 0;
+var scorew = 0;
 var me = "You are : unknown";
 var color = "null";
 var host = window.location.hostname;
@@ -104,10 +106,16 @@ function ConnectWS() {
 
       //stone captured
       else if(data[0] == "REM") {
+        if (turn == "black") {
+          scoreb += 2;
+        } else if (turn == "white") {
+          scorew += 2;
+        }
         $('.pos' + data[1] + 'y' + data[2]).removeClass("bgblack");
         $('.pos' + data[1] + 'y' + data[2]).removeClass("bgwhite");
         $('.pos' + data[3] + 'y' + data[4]).removeClass("bgblack");
         $('.pos' + data[3] + 'y' + data[4]).removeClass("bgwhite");
+        $("#score").text("Black : "+scoreb+" | White : "+scorew);
       }
 
       else if(data[0] == "YOURTURN") {
@@ -140,24 +148,24 @@ function ConnectWS() {
 
 //click gamemode
 $(".selectpvp").click(function() {
-  ConnectWS();
   mode = "pvp";
+  ConnectWS();
   $("#victory").hide();
   $("#menu").slideUp();
   $("#game").show();
 });
 
 $(".selectpve").click(function() {
+  mode = "pve";
   ConnectWS();
   color = "black";
   turn = "black";
-  mode = "pve";
   $("#victory").hide();
   $("#menu").slideUp();
   $("#game").show();
 });
 
-//togglesetting 
+//togglesetting
 
 $(".settingmenuswitch").click(function() {
   if($('#mode').css('display') == "none" ) {

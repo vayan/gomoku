@@ -26,6 +26,14 @@ func send_win(winner Connection, reason int) {
 			send("LOSE "+get_string_reason(reason), pl)
 		}
 	}
+	for pl, _ := range players {
+		delete(players, pl)
+	}
+	players = make(map[Connection]int)
+	Board = initBoard(GOBANSIZE)
+	DOUBLE_3 = 0
+	BREAKING_5 = 0
+	TIMEOUT = 0
 }
 
 func send(buf string, c Connection) {
