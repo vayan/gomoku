@@ -1,5 +1,7 @@
 package main
 
+import ()
+
 func breakable_opos(coord Coord, board [][]int) bool {
 	x := coord.x
 	y := coord.y

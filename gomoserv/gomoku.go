@@ -84,6 +84,9 @@ func engine(msg_cl string, con Connection) int {
 		}
 		players = make(map[Connection]int)
 		Board = initBoard(GOBANSIZE)
+		DOUBLE_3 = 0
+		BREAKING_5 = 0
+		TIMEOUT = 0
 		return -1
 
 	case "RULES":

@@ -68,6 +68,20 @@ function ConnectWS() {
         color = data[1];
       }
 
+      if(data[0] == "RULES") {
+        if (data[1] == "1") {
+          $('#DOUBLE_3').attr('checked', 'checked');
+        } else if (data[1] == "0") {
+          $('#DOUBLE_3').removeAttr('checked');
+        }
+        if (data[2] == "1") {
+          $('#BREAKING_5').attr('checked', 'checked');
+        } else if (data[2] == "0") {
+          $('#BREAKING_5').removeAttr('checked');
+        }
+        $('#TIMEOUT').val(data[3]);
+      }
+
       if(data[0] == "COLOR") {
         color = data[1];
         $("#me").text("You are : " + color);

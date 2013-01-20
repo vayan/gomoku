@@ -39,6 +39,7 @@ func HandleWebSocket(ws *websocket.Conn) {
 	sock_cli := Connection{ws, nil, getFreeSlot(), false, ws.Request().RemoteAddr}
 	log.Printf("\nNouveau joueurs de type %d\n", sock_cli.player_color)
 	sendboard(sock_cli)
+	send(RULES_ST, sock_cli)
 	players[sock_cli] = 0
 
 	for {

@@ -1,5 +1,7 @@
 package main
 
+import ()
+
 func check_dual_three(coord Coord, player int, sens int, board [][]int) bool {
 	x := coord.x
 	y := coord.y
@@ -285,7 +287,6 @@ func dual_three(coord Coord, player int, board [][]int) bool {
 	if DOUBLE_3 == 0 {
 		return false
 	}
-
 	board[coord.x][coord.y] = player
 
 	sens, nbr := check_three_free(coord, player, 0, board)
