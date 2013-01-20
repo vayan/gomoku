@@ -2,7 +2,7 @@
 
 * `mkdir Go`
 
-* ajoute ce dossier a l'env `export GOPATH='path/to/Go'
+* ajoute ce dossier a l'env `export GOPATH=path/to/Go `
 
 * `cd Go`
 
