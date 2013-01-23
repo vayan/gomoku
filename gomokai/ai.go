@@ -1,4 +1,4 @@
-package main
+package gomokai
 
 import (
 	"fmt"
@@ -130,7 +130,7 @@ func aff_score(tree Tree) {
 	fmt.Print("\n")
 }
 
-func start_ai() string {
+func Start_ai(board [][]int) (string, int, int) {
 	mov := Coord{0, 0}
 	depth := 1
 	speed := 0
@@ -141,7 +141,7 @@ func start_ai() string {
 
 	//log.Print("AI trying all moves")
 	//t0 := time.Now()
-	tree := minimax(duplicate_board(Board), Turn, depth, depth, Coord{0, 0}, speed)
+	tree := minimax(board, Turn, depth, depth, Coord{0, 0}, speed)
 	//t1 := time.Now()
 	//log.Printf("The AI took %v to check all move.....", t1.Sub(t0))
 
@@ -156,5 +156,5 @@ func start_ai() string {
 	//log.Printf("The AI took %v to choose one.....", t1.Sub(t0))
 
 	//aff_score(tree)
-	return "PLAY " + strconv.Itoa(mov.x) + " " + strconv.Itoa(mov.y)
+	return "PLAY " + strconv.Itoa(mov.x) + " " + strconv.Itoa(mov.y), mov.x, mov.y
 }

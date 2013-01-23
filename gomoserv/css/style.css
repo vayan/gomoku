@@ -124,6 +124,10 @@ table {
 	height: 50px;
 }
 
+#head input {
+	height: 40px;
+}
+
 #head span {
 	padding: 9px ;
 	border: 1px dotted grey;
@@ -158,6 +162,10 @@ table {
 
 .newstone {
 	border: 2px solid red;
+}
+
+.hintstone {
+	border: 2px solid blue;
 }
 
 .boardclic {

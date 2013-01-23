@@ -1,4 +1,4 @@
-package main
+package gomokai
 
 import (
 	"math/rand"

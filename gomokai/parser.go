@@ -1,4 +1,4 @@
-package main
+package gomokai
 
 import (
 	"log"
@@ -42,7 +42,7 @@ func parser(msg string, con net.Conn) {
 		log.Print("AI LOSE")
 		os.Exit(11)
 	case "YOURTURN":
-		msg := start_ai()
+		msg, _, _ := Start_ai(duplicate_board(Board))
 		Send(msg, con)
 	case "RULES":
 		DOUBLE_3 = Atoi(buff[1])

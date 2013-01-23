@@ -7,11 +7,21 @@ var scorew = 0;
 var me = "You are : unknown";
 var color = "null";
 var host = window.location.hostname;
+var portWS;
 
 //init page
 $("#turn").text("IDK");
 $("#score").text(score);
 $("#me").text(me);
+
+function getPortWS() {
+  var url = window.location.href;
+  var arr = url.split("/");
+  var result = arr[2].split(":")[1];
+  //portWS = parseInt(result, 0);
+  portWS = result;
+  //console.log(portWS);
+}
 
 function getURLParameter(name) {
   return decodeURI(
@@ -26,6 +36,7 @@ $(document).ready(function() {
     $("#victory").text("YOU LOSE").show(300);
   }
    $("#mode").hide(200);
+   getPortWS();
 });
 
 function sendRules() {
@@ -45,7 +56,7 @@ function sendRules() {
 
 function ConnectWS() {
 
-  ws = new WebSocket("ws://" + host + ":1112/ws");
+  ws = new WebSocket("ws://" + host + ":"+portWS+"/ws");
 
   ws.onopen = function() {
     console.log("Connected to server");
@@ -82,6 +93,11 @@ function ConnectWS() {
           $('#BREAKING_5').removeAttr('checked');
         }
         $('#TIMEOUT').val(data[3]);
+      }
+
+      if (data[0] == "HINT") {
+        $('.boardclic td div').removeClass("hintstone");
+        $('.pos' + data[1] + 'y' + data[2]).addClass("hintstone");
       }
 
       if(data[0] == "COLOR") {
@@ -121,6 +137,7 @@ function ConnectWS() {
       else if(data[0] == "YOURTURN") {
         $("#turn").text("YOUR TURN");
       } else if(data[0] == "ADD") {
+        $('.boardclic td div').removeClass("hintstone");
         $('.boardclic td div').removeClass("newstone");
         if(turn == color) {
           $("#turn").text("NOT YOU");
@@ -150,6 +167,7 @@ function ConnectWS() {
 $(".selectpvp").click(function() {
   mode = "pvp";
   ConnectWS();
+
   $("#victory").hide();
   $("#menu").slideUp();
   $("#game").show();
@@ -163,6 +181,7 @@ $(".selectpve").click(function() {
   $("#victory").hide();
   $("#menu").slideUp();
   $("#game").show();
+  $('#hint').attr('disabled', 'disabled');
 });
 
 //togglesetting
@@ -177,6 +196,11 @@ $(".settingmenuswitch").click(function() {
 
 $("#sendrules").click(function() {
    sendRules();
+});
+
+//give player an hint
+$("#hint").click(function() {
+  ws.send("HINT");
 });
 
 //reset all game

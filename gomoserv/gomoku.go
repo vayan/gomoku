@@ -88,7 +88,8 @@ func engine(msg_cl string, con Connection) int {
 		BREAKING_5 = 0
 		TIMEOUT = 0
 		return -1
-
+	case "HINT":
+		go hint(con)
 	case "RULES":
 		DOUBLE_3 = Atoi(buff[1])
 		BREAKING_5 = Atoi(buff[2])
